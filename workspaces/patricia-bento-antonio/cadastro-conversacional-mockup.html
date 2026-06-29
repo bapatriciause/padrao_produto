@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cadastro de Consumidor — E2 Administrativo</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    header {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: white;
+    }
+
+    .header-icon {
+      width: 44px; height: 44px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    header h1 { font-size: 18px; font-weight: 600; }
+    header p  { font-size: 12px; opacity: .75; margin-top: 2px; }
+
+    .header-badge {
+      margin-left: auto;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .4px;
+      white-space: nowrap;
+    }
+
+    /* ── Main card ── */
+    .main-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+    }
+
+    /* ── Left panel — Document ── */
+    .panel-doc {
+      width: 340px;
+      flex-shrink: 0;
+      border-right: 1px solid #f0f0f4;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-label {
+      padding: 14px 18px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      color: #9b8fc7;
+      text-transform: uppercase;
+      border-bottom: 1px solid #f0f0f4;
+    }
+
+    /* upload zone */
+    .upload-zone {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 20px;
+      gap: 14px;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .upload-zone:hover { background: #faf9ff; }
+
+    .upload-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, #ede9fc, #dbd3f8);
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+
+    .upload-zone h3 { font-size: 14px; font-weight: 600; color: #2d2d3a; text-align: center; }
+    .upload-zone p  { font-size: 12px; color: #9996ab; text-align: center; line-height: 1.5; }
+
+    .upload-border {
+      border: 2px dashed #c9c2ee;
+      border-radius: 12px;
+      padding: 24px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+      width: 100%;
+    }
+
+    .btn-upload {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      white-space: nowrap;
+    }
+    .btn-upload:hover  { opacity: .9; }
+    .btn-upload:active { transform: scale(.97); }
+    .btn-upload:disabled { opacity: .5; cursor: default; }
+
+    /* document preview area */
+    .doc-preview {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      padding: 14px;
+      gap: 10px;
+    }
+
+    .doc-img-wrap {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #f3f0fc;
+      flex: 1;
+      min-height: 200px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* SVG "document" placeholder */
+    .doc-svg { width: 100%; height: 100%; }
+
+    /* highlight boxes on the SVG document */
+    .highlight-box {
+      position: absolute;
+      border-radius: 4px;
+      border: 2px solid;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .4s;
+    }
+
+    .hb-nome  { top: 22%; left: 28%; width: 58%; height: 9%;  border-color: #667eea; background: rgba(102,126,234,.12); }
+    .hb-cpf   { top: 36%; left: 28%; width: 48%; height: 9%;  border-color: #e040fb; background: rgba(224,64,251,.10); }
+    .hb-nasc  { top: 50%; left: 28%; width: 42%; height: 9%;  border-color: #00bfa5; background: rgba(0,191,165,.10); }
+    .hb-val   { top: 64%; left: 28%; width: 35%; height: 9%;  border-color: #ff7043; background: rgba(255,112,67,.10); }
+
+    .highlight-box.visible { opacity: 1; }
+
+    .highlight-label {
+      position: absolute;
+      top: -18px; left: 0;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .4px;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+    .hb-nome  .highlight-label { background: #667eea; }
+    .hb-cpf   .highlight-label { background: #e040fb; }
+    .hb-nasc  .highlight-label { background: #00bfa5; }
+    .hb-val   .highlight-label { background: #ff7043; }
+
+    .doc-status {
+      font-size: 11px;
+      font-weight: 600;
+      color: #667eea;
+      text-align: center;
+      padding: 6px 0 2px;
+    }
+
+    /* ── Right panel — Chat ── */
+    .panel-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .chat-header {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid #f0f0f4;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    .agent-avatar {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; color: white; flex-shrink: 0;
+    }
+
+    .chat-header-info { flex: 1; }
+    .chat-header-info strong { font-size: 13px; color: #2d2d3a; }
+    .chat-header-info span  { font-size: 11px; color: #9996ab; display: block; }
+
+    .online-dot {
+      width: 8px; height: 8px;
+      background: #43d17a;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(67,209,122,.25);
+    }
+
+    /* messages */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 340px;
+      max-height: 440px;
+    }
+
+    .msg { display: flex; flex-direction: column; max-width: 82%; gap: 6px; }
+    .msg.agent { align-self: flex-start; }
+    .msg.user  { align-self: flex-end; }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .msg.agent .bubble {
+      background: #f2f0fa;
+      color: #2d2d3a;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg.user .bubble {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: #bbb;
+      padding: 0 4px;
+    }
+
+    .msg.user  .msg-time { text-align: right; }
+
+    /* quick replies */
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .qr-btn {
+      background: white;
+      border: 1.5px solid #c9c2ee;
+      color: #667eea;
+      border-radius: 20px;
+      padding: 5px 13px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .18s;
+    }
+    .qr-btn:hover  { background: #667eea; color: white; border-color: #667eea; }
+    .qr-btn:active { transform: scale(.96); }
+
+    /* typing indicator */
+    .typing-wrap { display: flex; align-items: flex-end; gap: 8px; }
+    .typing-bubble {
+      background: #f2f0fa;
+      border-radius: 14px;
+      border-bottom-left-radius: 4px;
+      padding: 12px 16px;
+      display: flex; gap: 4px; align-items: center;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      background: #a89de0;
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: .2s; }
+    .dot:nth-child(3) { animation-delay: .4s; }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); }
+      30%          { transform: translateY(-6px); }
+    }
+
+    /* chat input row */
+    .chat-input-row {
+      padding: 12px 14px;
+      border-top: 1px solid #f0f0f4;
+      display: flex; gap: 8px; align-items: flex-end;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: 1.5px solid #e0ddef;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      color: #2d2d3a;
+      transition: border-color .2s;
+      min-height: 38px;
+      max-height: 90px;
+    }
+    .chat-input:focus { border-color: #667eea; }
+    .chat-input::placeholder { color: #c4c0d8; }
+
+    .btn-send {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      border: none; border-radius: 10px;
+      color: white; font-size: 17px;
+      cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: opacity .2s, transform .1s;
+      flex-shrink: 0;
+    }
+    .btn-send:hover  { opacity: .88; }
+    .btn-send:active { transform: scale(.93); }
+
+    /* ── Sidebar card — Dados Extraídos ── */
+    .sidebar {
+      width: 200px;
+      flex-shrink: 0;
+      border-left: 1px solid #f0f0f4;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-label {
+      padding: 14px 14px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .8px;
+      color: #9b8fc7;
+      text-transform: uppercase;
+      border-bottom: 1px solid #f0f0f4;
+    }
+
+    .sidebar-body { padding: 14px; flex: 1; }
+
+    .data-row {
+      margin-bottom: 12px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .4s, transform .4s;
+    }
+    .data-row.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .data-key {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .5px;
+      color: #b0aacc;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    .data-val {
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d2d3a;
+    }
+
+    .data-pill {
+      display: inline-block;
+      background: #ede9fc;
+      color: #5c47b8;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-empty {
+      font-size: 12px;
+      color: #c4c0d8;
+      text-align: center;
+      padding: 20px 0;
+      line-height: 1.5;
+    }
+
+    /* ── Success overlay ── */
+    .success-state {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .success-icon {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, #43d17a, #1ea853);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px;
+      box-shadow: 0 4px 20px rgba(67,209,122,.35);
+    }
+
+    .success-state h2 { font-size: 17px; color: #1a7a3c; font-weight: 700; }
+    .success-state p  { font-size: 13px; color: #555; text-align: center; line-height: 1.6; }
+
+    .success-id {
+      background: #f0fdf5;
+      border: 1.5px solid #a7f3c0;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      color: #166534;
+      letter-spacing: 1px;
+    }
+
+    .btn-new {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: opacity .2s;
+    }
+    .btn-new:hover { opacity: .88; }
+
+    /* ── Green "Criar Cadastro" button ── */
+    .btn-criar {
+      background: linear-gradient(135deg, #43d17a, #1ea853);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .2s, transform .1s;
+      margin-top: 4px;
+    }
+    .btn-criar:hover  { opacity: .88; }
+    .btn-criar:active { transform: scale(.96); }
+
+    /* ── Responsive (mobile < 640px) ── */
+    @media (max-width: 640px) {
+      .main-card { flex-direction: column; }
+      .panel-doc { width: 100%; border-right: none; border-bottom: 1px solid #f0f0f4; }
+      .doc-preview { min-height: 180px; }
+      .sidebar { width: 100%; border-left: none; border-top: 1px solid #f0f0f4; }
+      .chat-messages { max-height: 300px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="header-icon">⚡</div>
+    <div>
+      <h1>Cadastro de Consumidor</h1>
+      <p>E2 Administrativo — Assistente de Cadastro</p>
+    </div>
+    <div class="header-badge">🔴 AO VIVO</div>
+  </header>
+
+  <!-- Main card: doc panel + chat panel + sidebar -->
+  <div class="main-card">
+
+    <!-- LEFT — Documento -->
+    <div class="panel-doc">
+      <div class="panel-label">📄 Documento</div>
+
+      <!-- Upload zone (initial) -->
+      <div class="upload-zone" id="uploadZone">
+        <div class="upload-border">
+          <div class="upload-icon">📤</div>
+          <h3>Arraste o documento ou clique para enviar</h3>
+          <p>Formatos aceitos: JPG, PNG, PDF<br>CPF · RG · CNH</p>
+          <button class="btn-upload" id="btnUpload" onclick="startFlow()">
+            Simular Upload de CNH
+          </button>
+        </div>
+      </div>
+
+      <!-- Doc preview (after upload) -->
+      <div class="doc-preview" id="docPreview">
+        <div class="doc-img-wrap" id="docImgWrap">
+          <!-- SVG placeholder that looks like a CNH card -->
+          <svg class="doc-svg" viewBox="0 0 260 175" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="blur-light">
+                <feGaussianBlur stdDeviation="1.2"/>
+              </filter>
+            </defs>
+            <!-- card background -->
+            <rect width="260" height="175" rx="10" fill="#1a237e"/>
+            <rect x="0" y="0" width="260" height="40" rx="10" fill="#283593"/>
+            <rect x="0" y="30" width="260" height="10" fill="#283593"/>
+            <!-- header text -->
+            <text x="130" y="20" text-anchor="middle" fill="white" font-size="8" font-weight="700" font-family="Segoe UI, sans-serif">REPÚBLICA FEDERATIVA DO BRASIL</text>
+            <text x="130" y="32" text-anchor="middle" fill="#90caf9" font-size="6.5" font-family="Segoe UI, sans-serif">CARTEIRA NACIONAL DE HABILITAÇÃO</text>
+            <!-- photo placeholder -->
+            <rect x="12" y="50" width="60" height="80" rx="4" fill="#3949ab"/>
+            <circle cx="42" cy="72" r="14" fill="#5c6bc0"/>
+            <ellipse cx="42" cy="100" rx="20" ry="16" fill="#5c6bc0"/>
+            <text x="42" y="140" text-anchor="middle" fill="#7986cb" font-size="7" font-family="Segoe UI, sans-serif">FOTO</text>
+            <!-- data fields -->
+            <rect x="82" y="50" width="165" height="10" rx="2" fill="#283593"/>
+            <text x="82" y="59" fill="#90caf9" font-size="6" font-family="Segoe UI, sans-serif">NOME</text>
+            <rect x="82" y="63" width="155" height="10" rx="2" fill="#3949ab"/>
+            <text x="82" y="72" fill="white" font-size="8" font-weight="700" font-family="Segoe UI, sans-serif">MARIA SILVA SANTOS</text>
+
+            <rect x="82" y="78" width="165" height="10" rx="2" fill="#283593"/>
+            <text x="82" y="87" fill="#90caf9" font-size="6" font-family="Segoe UI, sans-serif">CPF</text>
+            <rect x="82" y="91" width="120" height="10" rx="2" fill="#3949ab"/>
+            <text x="82" y="100" fill="white" font-size="8" font-family="Segoe UI, sans-serif">123.456.789-00</text>
+
+            <rect x="82" y="106" width="165" height="10" rx="2" fill="#283593"/>
+            <text x="82" y="115" fill="#90caf9" font-size="6" font-family="Segoe UI, sans-serif">DATA DE NASCIMENTO</text>
+            <rect x="82" y="119" width="100" height="10" rx="2" fill="#3949ab"/>
+            <text x="82" y="128" fill="white" font-size="8" font-family="Segoe UI, sans-serif">15/03/1985</text>
+
+            <rect x="12" y="140" width="235" height="1" fill="#3949ab"/>
+            <text x="130" y="155" text-anchor="middle" fill="#5c6bc0" font-size="6.5" font-family="Segoe UI, sans-serif">VALIDADE: 15/03/2028  ·  CAT: B  ·  REG: 12345678901</text>
+          </svg>
+
+          <!-- Highlight overlays -->
+          <div class="highlight-box hb-nome" id="hbNome">
+            <span class="highlight-label">NOME</span>
+          </div>
+          <div class="highlight-box hb-cpf" id="hbCpf">
+            <span class="highlight-label">CPF</span>
+          </div>
+          <div class="highlight-box hb-nasc" id="hbNasc">
+            <span class="highlight-label">NASC.</span>
+          </div>
+          <div class="highlight-box hb-val" id="hbVal">
+            <span class="highlight-label">VALIDADE</span>
+          </div>
+        </div>
+        <div class="doc-status" id="docStatus">Analisando documento…</div>
+      </div>
+    </div>
+
+    <!-- CENTER — Chat -->
+    <div class="panel-chat">
+      <div class="chat-header">
+        <div class="agent-avatar">🤖</div>
+        <div class="chat-header-info">
+          <strong>Assistente de Cadastro</strong>
+          <span>Agente de IA · E2 Administrativo</span>
+        </div>
+        <div class="online-dot"></div>
+      </div>
+
+      <!-- Messages feed -->
+      <div class="chat-messages" id="chatMessages">
+        <!-- Seed message -->
+        <div class="msg agent">
+          <div class="bubble">Olá, Cláudio! 👋 Sou o assistente de cadastro. Envie uma foto do documento do consumidor (CPF, RG ou CNH) para começar.</div>
+          <span class="msg-time">agora</span>
+        </div>
+      </div>
+
+      <!-- Success state (shown at the end, inside chat column) -->
+      <div class="success-state" id="successState">
+        <div class="success-icon">✅</div>
+        <h2>Cadastro criado com sucesso!</h2>
+        <p>O consumidor foi registrado na base<br>de dados da distribuidora.</p>
+        <div class="success-id">ID: UC-2026-04821</div>
+        <p style="font-size:12px;color:#888;">Em instantes o protocolo será enviado por e-mail.</p>
+        <button class="btn-new" onclick="resetFlow()">+ Novo Cadastro</button>
+      </div>
+
+      <!-- Input row -->
+      <div class="chat-input-row" id="inputRow">
+        <textarea
+          class="chat-input"
+          id="chatInput"
+          placeholder="Digite uma mensagem ou use os botões acima…"
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+          disabled
+        ></textarea>
+        <button class="btn-send" onclick="sendUserText()" title="Enviar">➤</button>
+      </div>
+    </div>
+
+    <!-- RIGHT — Dados Extraídos -->
+    <div class="sidebar">
+      <div class="sidebar-label">📋 Dados Extraídos</div>
+      <div class="sidebar-body" id="sidebarBody">
+        <div class="status-empty" id="sidebarEmpty">Nenhum dado ainda.<br>Envie um documento para iniciar.</div>
+
+        <div class="data-row" id="dr-nome">
+          <div class="data-key">Nome</div>
+          <div class="data-val">Maria Silva Santos</div>
+        </div>
+        <div class="data-row" id="dr-cpf">
+          <div class="data-key">CPF</div>
+          <div class="data-val">123.456.789-00</div>
+        </div>
+        <div class="data-row" id="dr-nasc">
+          <div class="data-key">Nascimento</div>
+          <div class="data-val">15/03/1985</div>
+        </div>
+        <div class="data-row" id="dr-val">
+          <div class="data-key">Validade CNH</div>
+          <div class="data-val">2028</div>
+        </div>
+        <div class="data-row" id="dr-end">
+          <div class="data-key">Endereço</div>
+          <div class="data-val" style="font-size:12px">Rua das Flores, 123<br>Centro — CEP 95010-000</div>
+        </div>
+        <div class="data-row" id="dr-classe">
+          <div class="data-key">Classe</div>
+          <div class="data-val"><span class="data-pill">Residencial</span></div>
+        </div>
+        <div class="data-row" id="dr-lig">
+          <div class="data-key">Ligação</div>
+          <div class="data-val"><span class="data-pill">Monofásico</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /.main-card -->
+</div><!-- /.container -->
+
+<script>
+  /* ── State ── */
+  let step = 0;   // current flow step
+  let typing = false;
+
+  /* ── Helpers ── */
+  function now() {
+    const d = new Date();
+    return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  }
+
+  function scrollChat() {
+    const el = document.getElementById('chatMessages');
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendUserText(); }
+  }
+
+  /* ── Add a user bubble ── */
+  function addUserMsg(text) {
+    const feed = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `<div class="bubble">${text}</div><span class="msg-time">${now()}</span>`;
+    feed.appendChild(div);
+    scrollChat();
+  }
+
+  /* ── Add an agent bubble (with optional quick replies & criar button) ── */
+  function addAgentMsg(text, opts = {}) {
+    const feed = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg agent';
+
+    let html = `<div class="bubble">${text.replace(/\n/g, '<br>')}</div><span class="msg-time">${now()}</span>`;
+
+    if (opts.quickReplies && opts.quickReplies.length) {
+      const btns = opts.quickReplies.map(qr =>
+        `<button class="qr-btn" onclick="handleQuickReply(this,'${qr.action}','${qr.label}')">${qr.label}</button>`
+      ).join('');
+      html += `<div class="quick-replies" id="qr-${opts.qrId || Date.now()}">${btns}</div>`;
+    }
+
+    if (opts.criarBtn) {
+      html += `<button class="btn-criar" onclick="handleCriar(this)">✅ Criar Cadastro</button>`;
+    }
+
+    div.innerHTML = html;
+    feed.appendChild(div);
+    scrollChat();
+  }
+
+  /* ── Show typing indicator, then remove it and add agent msg ── */
+  function agentTyping(delay, text, opts = {}) {
+    return new Promise(resolve => {
+      const feed = document.getElementById('chatMessages');
+
+      // add typing bubble
+      const typDiv = document.createElement('div');
+      typDiv.className = 'msg agent';
+      typDiv.id = 'typingIndicator';
+      typDiv.innerHTML = `<div class="typing-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+      feed.appendChild(typDiv);
+      scrollChat();
+
+      setTimeout(() => {
+        const el = document.getElementById('typingIndicator');
+        if (el) el.remove();
+        addAgentMsg(text, opts);
+        resolve();
+      }, delay);
+    });
+  }
+
+  /* ── Remove quick-reply buttons after a selection ── */
+  function clearQuickReplies() {
+    document.querySelectorAll('.quick-replies').forEach(el => el.remove());
+    document.querySelectorAll('.btn-criar').forEach(el => el.remove());
+  }
+
+  /* ── Reveal a sidebar data row ── */
+  function showDataRow(id) {
+    const el = document.getElementById(id);
+    if (el) {
+      document.getElementById('sidebarEmpty').style.display = 'none';
+      el.classList.add('visible');
+    }
+  }
+
+  /* ── FLOW ── */
+
+  function startFlow() {
+    if (step !== 0) return;
+    step = 1;
+
+    document.getElementById('btnUpload').disabled = true;
+
+    // Show doc preview after brief pause
+    setTimeout(() => {
+      document.getElementById('uploadZone').style.display = 'none';
+      document.getElementById('docPreview').style.display = 'flex';
+
+      agentTyping(1500,
+        'Documento recebido! Identifiquei uma CNH. Extraindo dados…'
+      ).then(() => {
+        // show highlights
+        setTimeout(() => {
+          ['hbNome','hbCpf','hbNasc','hbVal'].forEach((id, i) => {
+            setTimeout(() => document.getElementById(id).classList.add('visible'), i * 280);
+          });
+          document.getElementById('docStatus').textContent = '✓ Dados identificados';
+
+          // show extracted data message
+          agentTyping(2000,
+            'Encontrei os seguintes dados:\n• Nome: Maria Silva Santos\n• CPF: 123.456.789-00\n• Data nascimento: 15/03/1985\n• Validade CNH: 2028\n\nConfirma esses dados?',
+            {
+              quickReplies: [
+                { label: 'Sim, confirmar', action: 'confirmarDados' },
+                { label: 'Corrigir', action: 'corrigir' }
+              ],
+              qrId: 'confirmDados'
+            }
+          ).then(() => {
+            showDataRow('dr-nome');
+            showDataRow('dr-cpf');
+            showDataRow('dr-nasc');
+            showDataRow('dr-val');
+          });
+        }, 600);
+      });
+    }, 400);
+  }
+
+  function handleQuickReply(btn, action, label) {
+    clearQuickReplies();
+    addUserMsg(label);
+
+    if (action === 'confirmarDados')        stepEndereco();
+    else if (action === 'usarEndDoc')       stepEnderecoConfirm();
+    else if (action === 'confirmarEnd')     stepClasse();
+    else if (action === 'residencial')      stepLigacao('Residencial');
+    else if (action === 'comercial')        stepLigacao('Comercial');
+    else if (action === 'rural')            stepLigacao('Rural');
+    else if (action === 'monofasico')       stepResumo('Monofásico');
+    else if (action === 'bifasico')         stepResumo('Bifásico');
+    else if (action === 'trifasico')        stepResumo('Trifásico');
+    else if (action === 'corrigir') {
+      agentTyping(900, 'Tudo bem! Por favor, informe o dado que deseja corrigir no campo abaixo.');
+      document.getElementById('chatInput').disabled = false;
+      document.getElementById('chatInput').focus();
+    }
+  }
+
+  function stepEndereco() {
+    agentTyping(1100,
+      'Qual o endereço da unidade consumidora?\n(Rua, número, bairro, CEP)',
+      {
+        quickReplies: [
+          { label: 'Usar endereço do documento', action: 'usarEndDoc' }
+        ],
+        qrId: 'endereco'
+      }
+    );
+    document.getElementById('chatInput').disabled = false;
+    document.getElementById('chatInput').placeholder = 'Ex: Rua das Flores, 123, Centro, CEP 95010-000';
+    document.getElementById('chatInput').focus();
+  }
+
+  function stepEnderecoConfirm() {
+    document.getElementById('chatInput').disabled = true;
+    document.getElementById('chatInput').placeholder = 'Digite uma mensagem ou use os botões acima…';
+    agentTyping(1000,
+      'Endereço: Rua das Flores, 123, Centro, CEP 95010-000.\n\nEstá correto?',
+      {
+        quickReplies: [
+          { label: 'Confirmar', action: 'confirmarEnd' },
+          { label: 'Informar outro', action: 'corrigir' }
+        ],
+        qrId: 'confEnd'
+      }
+    ).then(() => showDataRow('dr-end'));
+  }
+
+  function stepClasse() {
+    document.getElementById('chatInput').disabled = true;
+    agentTyping(1000,
+      'Qual a classe tarifária?',
+      {
+        quickReplies: [
+          { label: 'Residencial', action: 'residencial' },
+          { label: 'Comercial',   action: 'comercial'   },
+          { label: 'Rural',       action: 'rural'        }
+        ],
+        qrId: 'classe'
+      }
+    );
+  }
+
+  function stepLigacao(classe) {
+    showDataRow('dr-classe');
+    // update pill text
+    const pill = document.querySelector('#dr-classe .data-pill');
+    if (pill) pill.textContent = classe;
+
+    agentTyping(900,
+      'Tipo de ligação elétrica?',
+      {
+        quickReplies: [
+          { label: 'Monofásico', action: 'monofasico' },
+          { label: 'Bifásico',   action: 'bifasico'   },
+          { label: 'Trifásico',  action: 'trifasico'  }
+        ],
+        qrId: 'ligacao'
+      }
+    );
+  }
+
+  function stepResumo(ligacao) {
+    showDataRow('dr-lig');
+    const pill = document.querySelector('#dr-lig .data-pill');
+    if (pill) pill.textContent = ligacao;
+
+    agentTyping(1200,
+      '✓ Cadastro completo! Aqui está o resumo:\n• Nome: Maria Silva Santos\n• CPF: 123.456.789-00\n• Classe: Residencial\n• Ligação: ' + ligacao + '\n• Endereço: Rua das Flores, 123\n\nTudo certo para registrar?',
+      { criarBtn: true }
+    );
+  }
+
+  function handleCriar(btn) {
+    btn.disabled = true;
+    clearQuickReplies();
+    addUserMsg('Criar Cadastro');
+
+    // hide chat messages + input, show success
+    setTimeout(() => {
+      document.getElementById('chatMessages').style.display = 'none';
+      document.getElementById('inputRow').style.display = 'none';
+      document.getElementById('successState').style.display = 'flex';
+    }, 600);
+
+    agentTyping(800, 'Registrando na base de dados…');
+  }
+
+  function sendUserText() {
+    const inp = document.getElementById('chatInput');
+    const text = inp.value.trim();
+    if (!text) return;
+    inp.value = '';
+    inp.style.height = 'auto';
+    addUserMsg(text);
+
+    // If we're in the address step, treat it as address entry
+    stepEnderecoConfirm();
+    inp.disabled = true;
+    inp.placeholder = 'Digite uma mensagem ou use os botões acima…';
+  }
+
+  function resetFlow() {
+    step = 0;
+
+    // Reset doc panel
+    document.getElementById('uploadZone').style.display = 'flex';
+    document.getElementById('docPreview').style.display = 'none';
+    document.getElementById('btnUpload').disabled = false;
+    ['hbNome','hbCpf','hbNasc','hbVal'].forEach(id => document.getElementById(id).classList.remove('visible'));
+    document.getElementById('docStatus').textContent = 'Analisando documento…';
+
+    // Reset chat
+    document.getElementById('chatMessages').style.display = 'flex';
+    document.getElementById('inputRow').style.display = 'flex';
+    document.getElementById('successState').style.display = 'none';
+
+    const feed = document.getElementById('chatMessages');
+    feed.innerHTML = `
+      <div class="msg agent">
+        <div class="bubble">Olá, Cláudio! 👋 Sou o assistente de cadastro. Envie uma foto do documento do consumidor (CPF, RG ou CNH) para começar.</div>
+        <span class="msg-time">${now()}</span>
+      </div>`;
+
+    // Reset sidebar
+    document.getElementById('sidebarEmpty').style.display = '';
+    ['dr-nome','dr-cpf','dr-nasc','dr-val','dr-end','dr-classe','dr-lig'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('visible');
+    });
+
+    // Reset input
+    const inp = document.getElementById('chatInput');
+    inp.disabled = true;
+    inp.placeholder = 'Digite uma mensagem ou use os botões acima…';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Alertas — Useall</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 { font-size: 24px; margin-bottom: 5px; }
+        header p { font-size: 13px; opacity: 0.9; }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px 20px; }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .stat-card h3 { font-size: 12px; color: #999; text-transform: uppercase; margin-bottom: 10px; }
+        .stat-card .value { font-size: 32px; font-weight: 700; color: #667eea; }
+        .stat-card .sub { font-size: 12px; color: #aaa; margin-top: 5px; }
+
+        /* Filters */
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        select, input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* Alerts Table */
+        .alerts-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: #f9f9f9;
+            border-bottom: 2px solid #eee;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        tbody tr:hover { background: #f9f9f9; cursor: pointer; }
+
+        .nome { font-weight: 600; color: #333; }
+        .cidade { color: #666; font-size: 13px; }
+
+        .consumo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .consumo-bar {
+            flex: 1;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .consumo-fill {
+            height: 100%;
+            background: #667eea;
+            width: var(--fill-pct);
+        }
+
+        .variacao {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .variacao.critico { background: #ffebee; color: #c62828; }
+        .variacao.alto { background: #fff3e0; color: #e65100; }
+        .variacao.medio { background: #e8f5e9; color: #2e7d32; }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal.show { display: block; }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 700px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-header h2 { font-size: 20px; }
+        .close-btn { background: none; border: none; font-size: 28px; cursor: pointer; color: #999; }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            font-size: 13px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric-label { color: #666; }
+        .metric-value { font-weight: 600; color: #333; }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-bottom: 20px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5568d3; }
+
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-secondary:hover { background: #e0e0e0; }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+            padding: 20px 0;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .pagination button.active { background: #667eea; color: white; border-color: #667eea; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-critico { background: #ffcdd2; color: #b71c1c; }
+        .badge-alto { background: #ffe0b2; color: #e65100; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Portal de Alertas de Consumo</h1>
+        <p>Monitoramento em tempo real — Useall Distribuidora</p>
+    </header>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <h3>Total Consumidores</h3>
+                <div class="value" id="stat-total">25,821</div>
+                <div class="sub">3 cidades</div>
+            </div>
+            <div class="stat-card">
+                <h3>Anomalias Detectadas</h3>
+                <div class="value" id="stat-anomalias">575</div>
+                <div class="sub">> 30% acima da média</div>
+            </div>
+            <div class="stat-card">
+                <h3>Críticas</h3>
+                <div class="value" id="stat-criticas">--</div>
+                <div class="sub">Ação imediata</div>
+            </div>
+            <div class="stat-card">
+                <h3>Alto Risco</h3>
+                <div class="value" id="stat-altos">--</div>
+                <div class="sub">Monitorar</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filters-row">
+                <select id="filter-cidade">
+                    <option value="">Todas as cidades</option>
+                    <option value="Criciuma">Criciuma</option>
+                    <option value="Forquilhinha">Forquilhinha</option>
+                    <option value="Nova Veneza">Nova Veneza</option>
+                </select>
+                <select id="filter-severidade">
+                    <option value="">Todas as severidades</option>
+                    <option value="CRITICO">CRÍTICO</option>
+                    <option value="ALTO">ALTO</option>
+                </select>
+                <input type="text" id="filter-nome" placeholder="Buscar por nome...">
+                <button onclick="applyFilters()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Filtrar</button>
+            </div>
+        </div>
+
+        <!-- Alerts Table -->
+        <div class="alerts-table">
+            <table id="alertsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 30%">Consumidor</th>
+                        <th style="width: 15%">Cidade</th>
+                        <th style="width: 20%">Consumo</th>
+                        <th style="width: 15%">Variação</th>
+                        <th style="width: 15%">Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Populate by JS -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h2 id="modal-nome">--</h2>
+                    <p id="modal-cidade" style="color: #999; font-size: 13px;"></p>
+                </div>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="modal-section">
+                <h3>Consumo Detectado</h3>
+                <div class="metric-row">
+                    <span class="metric-label">Este Mês</span>
+                    <span class="metric-value" id="modal-consumo">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Média (3 meses)</span>
+                    <span class="metric-value" id="modal-media">--</span>
+                </div>
+                <div class="metric-row">
+                    <span class="metric-label">Variação</span>
+                    <span class="metric-value" id="modal-variacao">--</span>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Histórico (Últimos 3 Meses)</h3>
+                <div class="chart-container">
+                    <canvas id="consumoChart"></canvas>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Alerta</h3>
+                <p id="modal-alerta" style="padding: 12px; background: #f5f5f5; border-radius: 4px; line-height: 1.6;"></p>
+            </div>
+
+            <div class="actions">
+                <button class="btn btn-primary" onclick="contarConsumidor()">Contatar Consumidor</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allAlerts = [];
+        let currentPage = 1;
+        const itemsPerPage = 15;
+        let currentChart = null;
+
+        // Load data
+        async function loadData() {
+            try {
+                const response = await fetch('alerts_real.json');
+                allAlerts = await response.json();
+
+                // Classify severity
+                allAlerts.forEach(alert => {
+                    if (alert.variacao > 100) alert.severidade = 'CRITICO';
+                    else alert.severidade = 'ALTO';
+                });
+
+                // Stats
+                const criticos = allAlerts.filter(a => a.severidade === 'CRITICO').length;
+                const altos = allAlerts.filter(a => a.severidade === 'ALTO').length;
+
+                document.getElementById('stat-anomalias').textContent = allAlerts.length;
+                document.getElementById('stat-criticas').textContent = criticos;
+                document.getElementById('stat-altos').textContent = altos;
+
+                renderTable();
+            } catch (e) {
+                console.error('Erro ao carregar dados:', e);
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="6">Erro ao carregar dados</td></tr>';
+            }
+        }
+
+        function renderTable(page = 1) {
+            currentPage = page;
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageData = allAlerts.slice(start, end);
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = pageData.map((alert, idx) => {
+                const badgeClass = alert.severidade === 'CRITICO' ? 'badge-critico' : 'badge-alto';
+                const fillPct = (alert.consumo / Math.max(...allAlerts.map(a => a.consumo))) * 100;
+                return `
+                    <tr onclick="openModal(${start + idx})">
+                        <td>${start + idx + 1}</td>
+                        <td><div class="nome">${alert.nome}</div><div class="cidade">${alert.cidade}</div></td>
+                        <td>${alert.cidade}</td>
+                        <td>
+                            <div class="consumo">
+                                <div class="consumo-bar">
+                                    <div class="consumo-fill" style="--fill-pct: ${fillPct}%"></div>
+                                </div>
+                                <span>${alert.consumo.toFixed(0)} kWh</span>
+                            </div>
+                        </td>
+                        <td><div class="variacao ${alert.severidade.toLowerCase()}">${alert.variacao.toFixed(1)}%</div></td>
+                        <td><span class="badge ${badgeClass}">${alert.severidade}</span></td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Pagination
+            const totalPages = Math.ceil(allAlerts.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = Array.from({length: totalPages}, (_, i) =>
+                `<button ${i+1 === page ? 'class="active"' : ''} onclick="renderTable(${i+1})">${i+1}</button>`
+            ).join('');
+        }
+
+        function openModal(idx) {
+            const alert = allAlerts[idx];
+            document.getElementById('modal-nome').textContent = alert.nome;
+            document.getElementById('modal-cidade').textContent = alert.cidade;
+            document.getElementById('modal-consumo').textContent = `${alert.consumo.toFixed(0)} kWh`;
+            document.getElementById('modal-media').textContent = `${alert.media.toFixed(0)} kWh`;
+            document.getElementById('modal-variacao').textContent = `${alert.variacao.toFixed(1)}%`;
+            document.getElementById('modal-alerta').textContent = alert.alerta;
+
+            // Gráfico
+            drawChart(alert);
+
+            document.getElementById('alertModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('alertModal').classList.remove('show');
+        }
+
+        function drawChart(alert) {
+            const ctx = document.getElementById('consumoChart');
+            if (currentChart) currentChart.destroy();
+
+            currentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['3 meses atrás', '2 meses atrás', '1 mês atrás', 'Este mês'],
+                    datasets: [
+                        {
+                            label: 'Consumo (kWh)',
+                            data: [0, 0, 0, alert.consumo],
+                            backgroundColor: ['#e0e0e0', '#e0e0e0', '#e0e0e0', '#667eea']
+                        },
+                        {
+                            label: 'Média',
+                            type: 'line',
+                            data: [alert.media, alert.media, alert.media, alert.media],
+                            borderColor: '#ff6b6b',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: true, position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function applyFilters() {
+            const cidade = document.getElementById('filter-cidade').value;
+            const severidade = document.getElementById('filter-severidade').value;
+            const nome = document.getElementById('filter-nome').value.toLowerCase();
+
+            allAlerts = allAlerts.filter(a =>
+                (!cidade || a.cidade === cidade) &&
+                (!severidade || a.severidade === severidade) &&
+                (!nome || a.nome.toLowerCase().includes(nome))
+            );
+
+            renderTable(1);
+        }
+
+        function contarConsumidor() {
+            alert('Ação: Enviar SMS/Email ao consumidor com alerta e sugestões.');
+        }
+
+        // Init
+        loadData();
+
+        // Close modal on background click
+        document.getElementById('alertModal').addEventListener('click', (e) => {
+            if (e.target.id === 'alertModal') closeModal();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+
+# Internal notes, facilitator-only, never pushed.
+# Matches any folder named _internal at any level, including prompts-v2/_internal/
+# (persona-test instruments, findings, and deck gap-analysis live there - not for participants).
+_internal/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Build artifacts (in case prototypes are built locally)
+node_modules/
+dist/
+build/
+
+# Logs
+*.log
+
+# Pasta de dados local (nao versionar)
+oseias/

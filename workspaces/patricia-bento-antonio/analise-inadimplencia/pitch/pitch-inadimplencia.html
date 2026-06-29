@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Useall · Recuperação de Receita com IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grad:linear-gradient(125deg,#5026a6 0%,#2b4fc4 45%,#1f86d4 75%,#2bb8e8 100%);
+    --ink:#1b2330; --mut:#667085; --line:#e6e9f0; --bg:#fff; --soft:#f6f8fb;
+    --accent:#1e88e5; --accent-d:#1669bb; --ai:#5b4bd6; --pos:#1e9e57; --warn:#e53935;
+    --mono:'Roboto Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{font-family:'Roboto',system-ui,Arial,sans-serif;color:var(--ink);background:#0b1020}
+  .deck{width:100vw;height:100vh;overflow:hidden;position:relative}
+  .track{display:flex;height:100%;transition:transform .45s cubic-bezier(.45,.05,.2,1)}
+  .slide{flex:0 0 100vw;height:100vh;display:flex;flex-direction:column;justify-content:center;
+    padding:8vh 8.5vw;background:var(--bg);position:relative}
+  .inner{width:100%;max-width:1060px;margin:0 auto}
+  .kick{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent-d);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+  .kick::before{content:"";width:26px;height:3px;background:var(--accent);border-radius:2px}
+  h1{font-size:48px;line-height:1.08;margin:0 0 16px;font-weight:900;letter-spacing:-.5px}
+  h2{font-size:34px;line-height:1.14;margin:0 0 18px;font-weight:700;letter-spacing:-.3px;max-width:22ch}
+  p.sub{font-size:20px;color:var(--mut);margin:0;max-width:64ch;line-height:1.5}
+  b{font-weight:700}
+  .big{font-family:var(--mono);font-weight:700;font-size:120px;line-height:.95;color:var(--accent-d);letter-spacing:-3px}
+  .big.green{color:var(--pos)}
+  .bignote{font-size:23px;font-weight:500;margin-top:8px;max-width:30ch;line-height:1.3}
+  .stats{display:flex;gap:32px;flex-wrap:wrap;margin-top:28px}
+  .stats .s{border-left:3px solid var(--accent);padding-left:15px;max-width:25ch}
+  .stats .s .v{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-.5px}
+  .stats .s .k{font-size:13.5px;color:var(--mut);margin-top:4px;line-height:1.35}
+  ul.pts{margin:8px 0 0;padding:0;list-style:none;max-width:68ch}
+  ul.pts li{font-size:19.5px;line-height:1.45;margin:12px 0;padding-left:30px;position:relative}
+  ul.pts li::before{content:"›";position:absolute;left:0;color:var(--accent);font-weight:700;font-size:24px;top:-2px}
+  .cols{display:flex;gap:22px;margin-top:10px;flex-wrap:wrap}
+  .col{flex:1;min-width:260px;background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+  .col .h{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent-d);margin-bottom:8px}
+  .col p{margin:0;font-size:16px;line-height:1.5}
+  .col ul{margin:6px 0 0;padding-left:18px} .col li{font-size:15.5px;line-height:1.4;margin:6px 0}
+  .col.ai .h{color:var(--ai)} .col.ai{background:#f4f2fe;border-color:#ded7f6}
+  .col.pos .h{color:var(--pos)} .col.pos{background:#eaf6ef;border-color:#c5e6d2}
+  .chip{display:inline-block;background:#eef4fe;color:var(--accent-d);border-radius:30px;padding:7px 18px;font-size:15px;font-weight:600;margin-top:16px}
+  .tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:5px;padding:2px 8px;margin-left:7px;vertical-align:middle}
+  .tag.ilu{background:#fff4e5;color:#b25e00} .tag.conf{background:#fdeceb;color:#c62828}
+  .src{position:absolute;bottom:5vh;left:8.5vw;right:8.5vw;font-size:12.5px;color:var(--mut);border-top:1px solid var(--line);padding-top:10px;max-width:1060px;margin:0 auto}
+  .src a{color:var(--accent-d);text-decoration:none}
+  .wm{position:absolute;top:5vh;right:8.5vw;font-size:12px;font-weight:700;letter-spacing:1px;color:var(--mut);text-transform:uppercase}
+  .slide.grad{background:var(--grad);color:#fff;justify-content:center}
+  .slide.grad .kick{color:rgba(255,255,255,.9)} .slide.grad .kick::before{background:rgba(255,255,255,.9)}
+  .slide.grad h1{font-size:58px;max-width:18ch} .slide.grad p.sub{color:rgba(255,255,255,.93)}
+  .slide.grad .chip{background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.55);font-size:16px}
+  .slide.grad .foot{position:absolute;bottom:6vh;left:8.5vw;color:rgba(255,255,255,.82);font-size:14px}
+  table.dt{border-collapse:collapse;margin-top:16px;width:100%}
+  .funnel{margin-top:4px;max-width:800px}
+  .fstage{display:grid;grid-template-columns:236px 1fr 116px;align-items:center;gap:13px;padding:3px 0}
+  .fname{font-size:13.5px}.fname.rec{color:var(--pos)}
+  .fname .ch{display:block;font-size:11px;color:var(--mut)}
+  .ftrack{height:23px;background:var(--soft);border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .fbar{height:100%;display:flex;align-items:center}.fbar .c{padding:0 9px;color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;white-space:nowrap}
+  .fbar.rec{background:var(--pos)}
+  .fval{font-family:var(--mono);font-size:12.5px;text-align:right}.fval.rec{color:var(--pos)}
+  .callout{margin-top:14px;background:#eaf6ef;border:1px solid #c5e6d2;border-radius:11px;padding:11px 18px;display:inline-block}
+  .callout .k{font-size:12px;color:var(--pos);text-transform:uppercase;letter-spacing:.5px}
+  .callout .v{font-size:16px;font-weight:600;margin-top:3px}.callout .v b{color:var(--pos);font-family:var(--mono)}
+  .nav{position:fixed;bottom:24px;right:28px;display:flex;align-items:center;gap:12px;z-index:10}
+  .nav button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:21px;cursor:pointer;color:var(--ink);box-shadow:0 3px 10px rgba(0,0,0,.14)}
+  .nav button:hover{border-color:var(--accent);color:var(--accent-d)}
+  #counter{font-family:var(--mono);font-size:13px;color:#fff;background:rgba(0,0,0,.5);padding:7px 13px;border-radius:20px}
+  #bar{position:fixed;top:0;left:0;height:4px;background:var(--accent);z-index:11;transition:width .45s;width:100%}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div class="deck"><div class="track" id="track">
+
+  <!-- 1 O CONTEXTO (capa + cenário + dificuldades) -->
+  <section class="slide">
+    <div class="inner">
+      <div class="kick">Useall · ZeroPerdas</div>
+      <h1 style="font-size:38px;margin-bottom:6px">Recuperação de receita com IA</h1>
+      <p class="sub" style="font-size:18px;margin-bottom:22px">Recuperar mais · cortar menos · gastar menos pra cobrar.</p>
+      <div class="stats" style="gap:34px;margin:0 0 24px">
+        <div class="s"><div class="v">81,7 mi</div><div class="k">adultos <b>negativados</b> no Brasil (quase 1 em 2)</div></div>
+        <div class="s"><div class="v">2ª maior</div><div class="k">causa de dívida do país: <b>conta de luz</b>/água/gás</div></div>
+        <div class="s" style="border-color:var(--pos)"><div class="v">R$ 1,17 bi/ano</div><div class="k">da sua carteira (~1,2 mi UCs) já entra em cobrança <span class="tag ilu">proj.</span></div></div>
+      </div>
+      <p class="sub" style="font-size:16px;margin:0 0 20px">Hoje a cobrança é <b>reativa, manual e cara</b>: corte no olho, deslocamento à toa, risco de corte indevido e caixa parado.</p>
+      <div class="callout" style="display:block;background:#f4f2fe;border-color:#ded7f6;padding:16px 24px">
+        <div class="k" style="color:var(--ai)">A oportunidade</div>
+        <div class="v" style="font-size:20px;margin-top:5px"><b style="color:var(--ai);font-family:var(--mono)">64 de 75</b> distribuidoras do mercado já são clientes (~1,2 mi UCs no E2). <b style="color:var(--ai)">Upsell</b> nesses 64 — e possível <b style="color:var(--ai)">venda nova</b> aos ~10 restantes.</div>
+      </div>
+    </div>
+    <div class="src">Fontes: <a href="https://www.serasa.com.br/imprensa/10-anos-do-mapa-de-inadimplencia/">Serasa (49,9%, 2026)</a> · <a href="https://cndl.org.br/varejosa/pais-encerra-o-ano-com-inadimplencia-recorde-e-atinge-pela-primeira-vez-7349-milhoes-de-consumidores-aponta-cndl-e-spc-brasil/">CNDL/SPC (44%, dez/2025)</a>. Projeção da carteira: R$/UC da amostra real de 5 clientes (172,8 mil UCs) aplicado a ~1,2 mi UCs — extrapolação linear.</div>
+  </section>
+
+</div></div>
+
+<div class="nav">
+  <button id="prev" aria-label="anterior">‹</button>
+  <span id="counter">1 / 1</span>
+  <button id="next" aria-label="próximo">›</button>
+</div>
+
+<script>
+  const track=document.getElementById("track");
+  const slides=[...document.querySelectorAll(".slide")];
+  let cur=0;
+  function go(i){
+    cur=Math.max(0,Math.min(slides.length-1,i));
+    track.style.transform=`translateX(-${cur*100}vw)`;
+    document.getElementById("counter").textContent=`${cur+1} / ${slides.length}`;
+    document.getElementById("bar").style.width=`${(cur+1)/slides.length*100}%`;
+  }
+  document.getElementById("prev").onclick=()=>go(cur-1);
+  document.getElementById("next").onclick=()=>go(cur+1);
+  document.addEventListener("keydown",e=>{
+    if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();go(cur+1);}
+    if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();go(cur-1);}
+    if(e.key==="Home")go(0); if(e.key==="End")go(slides.length-1);
+  });
+  go(0);
+</script>
+</body>
+</html>

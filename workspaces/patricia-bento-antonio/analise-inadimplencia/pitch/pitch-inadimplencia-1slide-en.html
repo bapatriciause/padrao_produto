@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Useall · ZeroPerdas — Revenue Recovery for Energy Distributors (1 slide)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b2330; --mut:#667085; --line:#e6e9f0; --bg:#fff; --soft:#f6f8fb;
+    --accent:#1e88e5; --accent-d:#1669bb; --ai:#5b4bd6; --pos:#1e9e57; --warn:#c0492a;
+    --mono:'Roboto Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{font-family:'Roboto',system-ui,Arial,sans-serif;color:var(--ink);background:#0b1020;
+    display:flex;align-items:center;justify-content:center}
+  .slide{width:100vw;height:100vh;background:var(--bg);padding:4.4vh 3.6vw;display:flex;flex-direction:column}
+  /* top */
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:13px;margin-bottom:16px}
+  .brand{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent-d)}
+  .title{font-size:29px;font-weight:900;letter-spacing:-.4px;margin:0}
+  .tag-hook{margin-left:auto;font-size:14px;font-weight:600;color:var(--mut)}
+  /* 4-column grid */
+  .grid4{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:15px;min-height:0}
+  .block{border:1px solid var(--line);border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;background:var(--bg);overflow:hidden}
+  .block .step{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.3px}
+  .block h2{font-size:17px;font-weight:800;margin:4px 0 0;letter-spacing:-.2px;line-height:1.2}
+  /* highlighted figures */
+  .figs{display:flex;gap:16px;margin:18px 0;flex-wrap:wrap}
+  .fig .n{font-family:var(--mono);font-weight:800;font-size:32px;line-height:1.02;letter-spacing:-1px}
+  .fig .l{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.28;max-width:16ch}
+  .tag{display:inline-block;font-size:9.5px;font-weight:700;border-radius:4px;padding:1px 5px;background:#fff4e5;color:#b25e00;vertical-align:middle}
+  /* bullets */
+  ul{margin:0;padding:14px 0 0;list-style:none;display:flex;flex-direction:column;gap:11px;border-top:1px solid var(--line)}
+  li{font-size:13.5px;line-height:1.4;padding-left:15px;position:relative;color:var(--ink)}
+  li::before{content:"›";position:absolute;left:0;top:-1px;font-weight:700}
+  /* per-block colors */
+  .block.ctx{background:#f3f8ff;border-color:#d4e4fb}
+  .block.ctx .step,.block.ctx h2,.block.ctx .fig .n,.block.ctx li::before{color:var(--accent-d)}
+  .block.prb{background:#fdf1ed;border-color:#f6d6cc}
+  .block.prb .step,.block.prb h2,.block.prb .fig .n,.block.prb li::before{color:var(--warn)}
+  .block.sol{background:#f6f4fe;border-color:#ded7f6}
+  .block.sol .step,.block.sol h2,.block.sol .fig .n,.block.sol li::before{color:var(--ai)}
+  .block.opp{background:#eef9f2;border-color:#c5e6d2}
+  .block.opp .step,.block.opp h2,.block.opp .fig .n,.block.opp li::before{color:var(--pos)}
+  .foot{margin-top:13px;font-size:11px;color:var(--mut);line-height:1.4}
+  .foot a{color:var(--accent-d);text-decoration:none}
+</style>
+</head>
+<body>
+  <section class="slide">
+    <div class="top">
+      <span class="brand">Useall · ZeroPerdas</span>
+      <h1 class="title">Revenue recovery for energy distributors</h1>
+      <span class="tag-hook">Recover more · disconnect less · spend less to collect</span>
+    </div>
+
+    <div class="grid4">
+      <!-- 1 CONTEXT -->
+      <div class="block ctx">
+        <div class="step">01 · CONTEXT</div>
+        <h2>The current scenario and our clients'</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">81.7M</div><div class="l">adults with a defaulted record in Brazil (1 in 2)</div></div>
+          <div class="fig"><div class="n">~21%</div><div class="l">of the base's billing already enters collections</div></div>
+        </div>
+        <ul>
+          <li>Electricity/water/gas = <b>2nd largest cause of debt</b> in the country.</li>
+          <li>Base of <b>~1.2M customers</b> — 64 of 75 utilities.</li>
+        </ul>
+      </div>
+
+      <!-- 2 PROBLEMS -->
+      <div class="block prb">
+        <div class="step">02 · PROBLEMS</div>
+        <h2>What this scenario brings us</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">5 people</div><div class="l">one client, just on collections</div></div>
+          <div class="fig"><div class="n">90 days</div><div class="l">window to disconnect — miss it, you can't</div></div>
+        </div>
+        <ul>
+          <li>Whom to disconnect decided <b>by gut feel</b>, no traceability.</li>
+          <li>Costly field work + risk of <b>wrongful disconnection</b> (fine/indemnity).</li>
+          <li><b>Cash stuck</b> and loss of financial float.</li>
+        </ul>
+      </div>
+
+      <!-- 3 SOLUTION -->
+      <div class="block sol">
+        <div class="step">03 · SOLUTION</div>
+        <h2>How ZeroPerdas solves it</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">3 channels</div><div class="l">email · WhatsApp · SMS, before cutoff</div></div>
+          <div class="fig"><div class="n">↓ cost<br>↑ cash</div><div class="l">fewer pointless cuts, more recovery</div></div>
+        </div>
+        <ul>
+          <li><b>Multichannel active notices</b> recover before disconnection.</li>
+          <li><b>Smart disconnection selection</b> — human in command.</li>
+          <li>Recovers in the base what would become <b>bad debt</b>.</li>
+        </ul>
+      </div>
+
+      <!-- 4 FINANCIAL OPPORTUNITY -->
+      <div class="block opp">
+        <div class="step">04 · FINANCIAL OPPORTUNITY</div>
+        <h2>The window for Useall</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">64 / 75</div><div class="l">clients / market — upsell + ~10 new</div></div>
+          <div class="fig"><div class="n">R$ 1.17bn</div><div class="l">/yr collections pool in the base <span class="tag">proj.</span></div></div>
+        </div>
+        <ul>
+          <li><b>Recurring</b> revenue: low subscription + <b>per message</b> (markup).</li>
+          <li>Grows with usage · <b>no success fee</b>.</li>
+          <li>Native E2 integration — data and relationship already in place.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot">
+      Sources: <a href="https://www.serasa.com.br/imprensa/10-anos-do-mapa-de-inadimplencia/">Serasa (49.9%, 2026)</a> ·
+      <a href="https://cndl.org.br/varejosa/pais-encerra-o-ano-com-inadimplencia-recorde-e-atinge-pela-primeira-vez-7349-milhoes-de-consumidores-aponta-cndl-e-spc-brasil/">CNDL/SPC (44%, Dec 2025)</a>.
+      Base projection: R$ per customer from the real 5-client sample (172.8k customers) applied to ~1.2M customers — linear extrapolation, larger clients may differ. Commercial figures to be set with Sales/Finance.
+    </div>
+  </section>
+</body>
+</html>

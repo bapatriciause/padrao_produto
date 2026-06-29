@@ -1,0 +1,50 @@
+[
+  {
+    "consumer_id": "CERTEL_0001",
+    "consumer_name": "João Silva",
+    "is_anomaly": true,
+    "anomaly_type": "spike",
+    "metrics": {
+      "avg_30d": 2.89,
+      "avg_today": 2.62,
+      "increase_pct": -9.5,
+      "max_today": 3.95,
+      "max_hour_today": 18,
+      "spike_increase": 36.7
+    },
+    "alert_message": "Pico de consumo detectado as 18h (37% acima). Seu painel solar pode ajudar!",
+    "timestamp": "2026-06-24T12:23:38.605150"
+  },
+  {
+    "consumer_id": "CERTEL_0002",
+    "consumer_name": "Empresa Logística XYZ",
+    "is_anomaly": false,
+    "anomaly_type": null,
+    "metrics": {
+      "avg_30d": 14.84,
+      "avg_today": 12.84,
+      "increase_pct": -13.5,
+      "max_today": 17.43,
+      "max_hour_today": 15,
+      "spike_increase": 17.4
+    },
+    "alert_message": null,
+    "timestamp": "2026-06-24T12:23:38.607376"
+  },
+  {
+    "consumer_id": "CERTEL_0003",
+    "consumer_name": "Maria Santos",
+    "is_anomaly": true,
+    "anomaly_type": "spike",
+    "metrics": {
+      "avg_30d": 2.93,
+      "avg_today": 2.65,
+      "increase_pct": -9.5,
+      "max_today": 3.86,
+      "max_hour_today": 17,
+      "spike_increase": 31.9
+    },
+    "alert_message": "Pico de consumo as 17h (32% acima da media). Desligue equipamentos desnecessarios.",
+    "timestamp": "2026-06-24T12:23:38.608591"
+  }
+]

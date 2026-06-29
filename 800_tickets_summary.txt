@@ -1,0 +1,3 @@
+Total: 800
+Unique products: 16
+Unique customers: 63

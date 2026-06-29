@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "nome": "NATANAEL COSTA ALBANO",
+    "cidade": "Forquilhinha",
+    "consumo": 187.0,
+    "media": 1.0,
+    "variacao": 18600.0,
+    "alerta": "CRITICO: Consumo 18600% acima da media (187 kWh vs 1). Verificar imediatamente."
+  },
+  {
+    "id": 2,
+    "nome": "DANIELA DE BARROS",
+    "cidade": "Criciuma",
+    "consumo": 121.0,
+    "media": 1.0,
+    "variacao": 12000.0,
+    "alerta": "CRITICO: Consumo 12000% acima da media (121 kWh vs 1). Verificar imediatamente."
+  },
+  {
+    "id": 3,
+    "nome": "ROBERTO DE JESUS",
+    "cidade": "Criciuma",
+    "consumo": 83.0,
+    "media": 1.0,
+    "variacao": 8200.0,
+    "alerta": "CRITICO: Consumo 8200% acima da media (83 kWh vs 1). Verificar imediatamente."
+  },
+  {
+    "id": 4,
+    "nome": "LILIANE MEZZARI DA ROSA",
+    "cidade": "Forquilhinha",
+    "consumo": 106.0,
+    "media": 2.0,
+    "variacao": 5200.0,
+    "alerta": "CRITICO: Consumo 5200% acima da media (106 kWh vs 2). Verificar imediatamente."
+  },
+  {
+    "id": 5,
+    "nome": "DORIVALDO JOSE CORNEO",
+    "cidade": "Forquilhinha",
+    "consumo": 38.0,
+    "media": 1.0,
+    "variacao": 3700.0,
+    "alerta": "CRITICO: Consumo 3700% acima da media (38 kWh vs 1). Verificar imediatamente."
+  },
+  {
+    "id": 6,
+    "nome": "ALEXIA EUGENIA OZORIO CARDOSO",
+    "cidade": "Forquilhinha",
+    "consumo": 249.0,
+    "media": 7.0,
+    "variacao": 3457.142857142857,
+    "alerta": "CRITICO: Consumo 3457% acima da media (249 kWh vs 7). Verificar imediatamente."
+  },
+  {
+    "id": 7,
+    "nome": "MAICON CARDOSO ALVES",
+    "cidade": "Criciuma",
+    "consumo": 120.0,
+    "media": 4.0,
+    "variacao": 2900.0,
+    "alerta": "CRITICO: Consumo 2900% acima da media (120 kWh vs 4). Verificar imediatamente."
+  },
+  {
+    "id": 8,
+    "nome": "SANTA CRUZ EMPREENDIMENTOS IMOBILIARIOS EIRELI - ME ",
+    "cidade": "Forquilhinha",
+    "consumo": 247.0,
+    "media": 9.0,
+    "variacao": 2644.4444444444443,
+    "alerta": "CRITICO: Consumo 2644% acima da media (247 kWh vs 9). Verificar imediatamente."
+  },
+  {
+    "id": 9,
+    "nome": "CLAUDIO FERREIRA",
+    "cidade": "Forquilhinha",
+    "consumo": 71.0,
+    "media": 3.0,
+    "variacao": 2266.666666666667,
+    "alerta": "CRITICO: Consumo 2267% acima da media (71 kWh vs 3). Verificar imediatamente."
+  },
+  {
+    "id": 10,
+    "nome": "ADELAR CESAR DA SILVA",
+    "cidade": "Forquilhinha",
+    "consumo": 137.0,
+    "media": 6.0,
+    "variacao": 2183.333333333333,
+    "alerta": "CRITICO: Consumo 2183% acima da media (137 kWh vs 6). Verificar imediatamente."
+  },
+  {
+    "id": 11,
+    "nome": "JORGE MARCOLINO CARDOSO",
+    "cidade": "Criciuma",
+    "consumo": 351.0,
+    "media": 16.0,
+    "variacao": 2093.75,
+    "alerta": "CRITICO: Consumo 2094% acima da media (351 kWh vs 16). Verificar imediatamente."
+  },
+  {
+    "id": 12,
+    "nome": "DEBORA SILVA DOS ANJOS",
+    "cidade": "Criciuma",
+    "consumo": 270.0,
+    "media": 16.0,
+    "variacao": 1587.5,
+    "alerta": "CRITICO: Consumo 1588% acima da media (270 kWh vs 16). Verificar imediatamente."
+  },
+  {
+    "id": 13,
+    "nome": "INGRID MATOS DE OLIVEIRA DA SILVA",
+    "cidade": "Forquilhinha",
+    "consumo": 220.0,
+    "media": 14.0,
+    "variacao": 1471.4285714285713,
+    "alerta": "CRITICO: Consumo 1471% acima da media (220 kWh vs 14). Verificar imediatamente."
+  },
+  {
+    "id": 14,
+    "nome": "LUCIANI COLOMBO SCARPATTO",
+    "cidade": "Forquilhinha",
+    "consumo": 110.0,
+    "media": 7.0,
+    "variacao": 1471.4285714285713,
+    "alerta": "CRITICO: Consumo 1471% acima da media (110 kWh vs 7). Verificar imediatamente."
+  },
+  {
+    "id": 15,
+    "nome": "EDUARDA MELLO DA SILVA",
+    "cidade": "Forquilhinha",
+    "consumo": 14.0,
+    "media": 1.0,
+    "variacao": 1300.0,
+    "alerta": "CRITICO: Consumo 1300% acima da media (14 kWh vs 1). Verificar imediatamente."
+  },
+  {
+    "id": 16,
+    "nome": "JOSE ALDELINO DE SOUZA SENA",
+    "cidade": "Nova Veneza",
+    "consumo": 14.0,
+    "media": 1.0,
+    "variacao": 1300.0,
+    "alerta": "CRITICO: Consumo 1300% acima da media (14 kWh vs 1). Verificar imediatamente."
+  },
+  {
+    "id": 17,
+    "nome": "EVERALDO FERNANDES",
+    "cidade": "Forquilhinha",
+    "consumo": 175.0,
+    "media": 13.0,
+    "variacao": 1246.1538461538462,
+    "alerta": "CRITICO: Consumo 1246% acima da media (175 kWh vs 13). Verificar imediatamente."
+  },
+  {
+    "id": 18,
+    "nome": "CARINA ROMANHA",
+    "cidade": "Nova Veneza",
+    "consumo": 295.0,
+    "media": 22.0,
+    "variacao": 1240.9090909090908,
+    "alerta": "CRITICO: Consumo 1241% acima da media (295 kWh vs 22). Verificar imediatamente."
+  },
+  {
+    "id": 19,
+    "nome": "LUIZ CARLOS MANGILI",
+    "cidade": "Criciuma",
+    "consumo": 342.0,
+    "media": 26.0,
+    "variacao": 1215.3846153846152,
+    "alerta": "CRITICO: Consumo 1215% acima da media (342 kWh vs 26). Verificar imediatamente."
+  },
+  {
+    "id": 20,
+    "nome": "ALOISIO ANTONIO HEERDT",
+    "cidade": "Forquilhinha",
+    "consumo": 39.0,
+    "media": 3.0,
+    "variacao": 1200.0,
+    "alerta": "CRITICO: Consumo 1200% acima da media (39 kWh vs 3). Verificar imediatamente."
+  }
+]

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Useall · ZeroPerdas — Recuperação de Receita de Distribuidoras de Energia (1 slide)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1b2330; --mut:#667085; --line:#e6e9f0; --bg:#fff; --soft:#f6f8fb;
+    --accent:#1e88e5; --accent-d:#1669bb; --ai:#5b4bd6; --pos:#1e9e57; --warn:#c0492a;
+    --mono:'Roboto Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{font-family:'Roboto',system-ui,Arial,sans-serif;color:var(--ink);background:#0b1020;
+    display:flex;align-items:center;justify-content:center}
+  .slide{width:100vw;height:100vh;background:var(--bg);padding:4.4vh 3.6vw;display:flex;flex-direction:column}
+  /* topo */
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;border-bottom:2px solid var(--line);padding-bottom:13px;margin-bottom:16px}
+  .brand{font-size:13px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--accent-d)}
+  .title{font-size:29px;font-weight:900;letter-spacing:-.4px;margin:0}
+  .tag-hook{margin-left:auto;font-size:14px;font-weight:600;color:var(--mut)}
+  /* grade 4 colunas */
+  .grid4{flex:1;display:grid;grid-template-columns:repeat(4,1fr);gap:15px;min-height:0}
+  .block{border:1px solid var(--line);border-radius:14px;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;background:var(--bg);overflow:hidden}
+  .block .step{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.3px}
+  .block h2{font-size:17px;font-weight:800;margin:4px 0 0;letter-spacing:-.2px;line-height:1.2}
+  /* faixa de números em destaque */
+  .figs{display:flex;gap:16px;margin:18px 0;flex-wrap:wrap}
+  .fig .n{font-family:var(--mono);font-weight:800;font-size:32px;line-height:1.02;letter-spacing:-1px}
+  .fig .l{font-size:11.5px;color:var(--mut);margin-top:6px;line-height:1.28;max-width:16ch}
+  .tag{display:inline-block;font-size:9.5px;font-weight:700;border-radius:4px;padding:1px 5px;background:#fff4e5;color:#b25e00;vertical-align:middle}
+  /* bullets */
+  ul{margin:0;padding:14px 0 0;list-style:none;display:flex;flex-direction:column;gap:11px;border-top:1px solid var(--line)}
+  li{font-size:13.5px;line-height:1.4;padding-left:15px;position:relative;color:var(--ink)}
+  li::before{content:"›";position:absolute;left:0;top:-1px;font-weight:700}
+  /* cores por bloco */
+  .block.ctx{background:#f3f8ff;border-color:#d4e4fb}
+  .block.ctx .step,.block.ctx h2,.block.ctx .fig .n,.block.ctx li::before{color:var(--accent-d)}
+  .block.prb{background:#fdf1ed;border-color:#f6d6cc}
+  .block.prb .step,.block.prb h2,.block.prb .fig .n,.block.prb li::before{color:var(--warn)}
+  .block.sol{background:#f6f4fe;border-color:#ded7f6}
+  .block.sol .step,.block.sol h2,.block.sol .fig .n,.block.sol li::before{color:var(--ai)}
+  .block.opp{background:#eef9f2;border-color:#c5e6d2}
+  .block.opp .step,.block.opp h2,.block.opp .fig .n,.block.opp li::before{color:var(--pos)}
+  .foot{margin-top:13px;font-size:11px;color:var(--mut);line-height:1.4}
+  .foot a{color:var(--accent-d);text-decoration:none}
+</style>
+</head>
+<body>
+  <section class="slide">
+    <div class="top">
+      <span class="brand">Useall · ZeroPerdas</span>
+      <h1 class="title">Recuperação de receita de distribuidoras de energia</h1>
+      <span class="tag-hook">Recuperar mais · cortar menos · gastar menos pra cobrar</span>
+    </div>
+
+    <div class="grid4">
+      <!-- 1 CONTEXTO -->
+      <div class="block ctx">
+        <div class="step">01 · CONTEXTO</div>
+        <h2>O cenário atual e o dos nossos clientes</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">81,7 mi</div><div class="l">adultos negativados no Brasil (1 em 2)</div></div>
+          <div class="fig"><div class="n">~21%</div><div class="l">do faturamento da carteira já entra em cobrança</div></div>
+        </div>
+        <ul>
+          <li>Conta de luz/água/gás = <b>2ª maior causa de dívida</b> do país.</li>
+          <li>Carteira de <b>~1,2 mi UCs</b> — 64 de 75 distribuidoras.</li>
+        </ul>
+      </div>
+
+      <!-- 2 PROBLEMAS -->
+      <div class="block prb">
+        <div class="step">02 · PROBLEMAS</div>
+        <h2>O que esse cenário traz pra gente</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">5 pessoas</div><div class="l">um cliente só na cobrança</div></div>
+          <div class="fig"><div class="n">90 dias</div><div class="l">janela pra cortar — perdeu, não pode mais</div></div>
+        </div>
+        <ul>
+          <li>Decisão de <b>quem cortar no olho</b>, sem rastreabilidade.</li>
+          <li>Deslocamento caro + risco de <b>corte indevido</b> (multa/indenização).</li>
+          <li><b>Caixa parado</b> e perda de float financeiro.</li>
+        </ul>
+      </div>
+
+      <!-- 3 SOLUÇÃO -->
+      <div class="block sol">
+        <div class="step">03 · SOLUÇÃO</div>
+        <h2>Como o ZeroPerdas resolve</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">3 canais</div><div class="l">e-mail · WhatsApp · SMS, antes do corte</div></div>
+          <div class="fig"><div class="n">↓ custo<br>↑ caixa</div><div class="l">menos corte à toa, mais recuperação</div></div>
+        </div>
+        <ul>
+          <li><b>Avisos ativos multicanal</b> recuperam antes do corte.</li>
+          <li><b>Seleção inteligente de corte</b> — humano no comando.</li>
+          <li>Recupera na base o que viraria <b>PDD</b>.</li>
+        </ul>
+      </div>
+
+      <!-- 4 OPORTUNIDADE FINANCEIRA -->
+      <div class="block opp">
+        <div class="step">04 · OPORTUNIDADE FINANCEIRA</div>
+        <h2>A janela para a Useall</h2>
+        <div class="figs">
+          <div class="fig"><div class="n">64 / 75</div><div class="l">clientes / mercado — upsell + ~10 novas</div></div>
+          <div class="fig"><div class="n">R$ 1,17 bi</div><div class="l">/ano de pool em cobrança na carteira <span class="tag">proj.</span></div></div>
+        </div>
+        <ul>
+          <li>Receita <b>recorrente</b>: mensalidade baixa + <b>por mensagem</b> (markup).</li>
+          <li>Cresce com o uso · <b>sem taxa de sucesso</b>.</li>
+          <li>Integração nativa no E2 — dado e relação já prontos.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot">
+      Fontes: <a href="https://www.serasa.com.br/imprensa/10-anos-do-mapa-de-inadimplencia/">Serasa (49,9%, 2026)</a> ·
+      <a href="https://cndl.org.br/varejosa/pais-encerra-o-ano-com-inadimplencia-recorde-e-atinge-pela-primeira-vez-7349-milhoes-de-consumidores-aponta-cndl-e-spc-brasil/">CNDL/SPC (44%, dez/2025)</a>.
+      Projeção da carteira: R$/UC da amostra real de 5 clientes (172,8 mil UCs) aplicado a ~1,2 mi UCs — extrapolação linear, clientes maiores podem diferir. Valores comerciais a definir com a área comercial/financeira.
+    </div>
+  </section>
+</body>
+</html>

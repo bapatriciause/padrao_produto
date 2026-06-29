@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Alertas — Consumo de Energia</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+        }
+
+        .logo {
+            width: 100px;
+            height: 40px;
+            flex-shrink: 0;
+        }
+
+        .header-text h1 {
+            font-size: 16px;
+            margin-bottom: 2px;
+        }
+
+        .header-text p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .alert-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-left: 5px solid #ff6b6b;
+            animation: slideIn 0.3s ease-out forwards;
+            transition: transform 0.2s;
+        }
+
+        .alert-card:hover {
+            transform: translateY(-2px);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .alert-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .alert-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .alert-time {
+            font-size: 11px;
+            color: #999;
+            background: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .alert-message {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .alert-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .metric {
+            font-size: 12px;
+        }
+
+        .metric-label {
+            color: #999;
+            margin-bottom: 2px;
+        }
+
+        .metric-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .metric-value.warning {
+            color: #ff6b6b;
+        }
+
+        .alert-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .solar-badge {
+            display: inline-block;
+            background: #ffd93d;
+            color: #333;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        footer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            margin-top: 32px;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .stat {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.2s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: auto;
+            padding: 0;
+            width: 100%;
+            max-width: 480px;
+            height: 100vh;
+            max-height: 100vh;
+            border-radius: 12px 12px 0 0;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateX(-50%) translateY(100%);
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .modal-header h2 {
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 24px;
+        }
+
+        .detail-section h3 {
+            font-size: 13px;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .detail-item-label {
+            color: #666;
+        }
+
+        .detail-item-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            border: 1px solid #eee;
+        }
+
+        .actions-section {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .btn-full {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-full-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-full-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-full-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-full-secondary:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALEAAAA1CAYAAAAOCAoLAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAAEnQAABJ0Ad5mH3gAACIsSURBVHhe3X17sB7FdeevZ+Z73reuXpYQEgIECPE2BiEQGJtgCIZgNhsnqZSzrGtNFtcWXpJag7NbXuzNZmtNnDWugLNJHJcB28EFa9Zeb1IGBYGxARkhgYVeINBb3Cvpvr/HPHr/OOf0dM/Md+/Vw7VG56tvf9OnzwozPZNnYNM4n8s81gpiI7nsxnAaJv2c4qQ2uR8Lw/Gfw+E6GZxZrE782ovQhk4/y9eSo5LVCU6wdcbGDp0kswoCnnywCrB2CAmHtCa2jaUwqbXrXPw7OOJfVlkoXxanyE8arGt54ufVANeTrBhYweTh2FTUahgbS7AtvdmFs5E014nyWBqOjR/SpzinQiemwWgGPmSgyqU1eImUhNkknTIbRhOl41gcUEwmVsx6E7MfwbNy5XAk3cGRWFEpUxxKo2JYjGYzm7HhvJYfJ0i6zZCsS3FchhQcJ28Gh2tp4fC1KQfX3eDwJ8V1krpJDrYnkzTmRgJOiU6cGezggWq4wBq8ZrQ7eh7rnCix49hxmq5VCjuIHxM7OOxf4gyOLsChy5TlUhxhQ/HvMqToyYYqLDGDMo6rc2IHJ4PBaVTGYhzROzg2nu27EIfrZvRcd4NDbZPWB/h/I9QPofUQM1EAAAAASUVORK5CYII=" class="logo" alt="Useall">
+            <div class="header-text">
+                <h1>Seus Alertas</h1>
+                <p>24 de junho de 2026</p>
+            </div>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat">2 alertas</div>
+            <div class="stat">Consumo: 2.6 kWh</div>
+            <div class="stat">Pico: 18h</div>
+        </div>
+
+        <!-- Alert 1: João Silva -->
+        <div class="alert-card">
+            <div class="alert-header">
+                <div>
+                    <div class="alert-title">João Silva</div>
+                    <div class="solar-badge">Painel Solar 5 kWp</div>
+                </div>
+                <div class="alert-time">Agora</div>
+            </div>
+
+            <div class="alert-message">
+                Pico de consumo detectado às 18h (37% acima). Seu painel solar pode ajudar!
+            </div>
+
+            <div class="alert-metrics">
+                <div class="metric">
+                    <div class="metric-label">Consumo Médio</div>
+                    <div class="metric-value">2.89 kWh</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Pico (18h)</div>
+                    <div class="metric-value warning">3.98 kWh</div>
+                </div>
+            </div>
+
+            <div class="alert-actions">
+                <button class="btn btn-primary" onclick="openDetails('joao')">Ver Detalhes</button>
+                <button class="btn btn-secondary" onclick="dismissAlert('joao')">Descartar</button>
+            </div>
+        </div>
+
+        <!-- Alert 2: Maria Santos -->
+        <div class="alert-card">
+            <div class="alert-header">
+                <div>
+                    <div class="alert-title">Maria Santos</div>
+                </div>
+                <div class="alert-time">Agora</div>
+            </div>
+
+            <div class="alert-message">
+                Pico de consumo às 17h (32% acima da média). Desligue equipamentos desnecessários.
+            </div>
+
+            <div class="alert-metrics">
+                <div class="metric">
+                    <div class="metric-label">Consumo Médio</div>
+                    <div class="metric-value">2.93 kWh</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Pico (17h)</div>
+                    <div class="metric-value warning">3.84 kWh</div>
+                </div>
+            </div>
+
+            <div class="alert-actions">
+                <button class="btn btn-primary" onclick="openDetails('maria')">Ver Detalhes</button>
+                <button class="btn btn-secondary" onclick="dismissAlert('maria')">Descartar</button>
+            </div>
+        </div>
+
+        <footer>
+            Agente de Avisos v1.0 — Gerado dinamicamente por IA
+        </footer>
+    </div>
+
+    <!-- Modal de Detalhes -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Detalhes do Consumo</h2>
+                <button class="close-btn" onclick="closeDetails()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Gráfico -->
+                <div class="detail-section">
+                    <h3>Consumo por Hora (Últimas 24h)</h3>
+                    <div class="chart-container">
+                        <canvas id="consumptionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Métricas Detalhadas -->
+                <div class="detail-section">
+                    <h3>Estatísticas</h3>
+                    <div id="statsDetails"></div>
+                </div>
+
+                <!-- Comparação -->
+                <div class="detail-section">
+                    <h3>Comparação com Período Anterior</h3>
+                    <div id="comparisonDetails"></div>
+                </div>
+
+                <!-- Recomendações -->
+                <div class="detail-section">
+                    <h3>Recomendações</h3>
+                    <div id="recommendationsDetails"></div>
+                </div>
+
+                <!-- Ações -->
+                <div class="actions-section">
+                    <button class="btn-full btn-full-primary" onclick="takeAction()">Tomar Ação</button>
+                    <button class="btn-full btn-full-secondary" onclick="closeDetails()">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados dos consumidores
+        const consumersData = {
+            joao: {
+                name: "João Silva",
+                type: "residential",
+                hasSolar: true,
+                solarCapacity: 5.0,
+                hourlyConsumption: [
+                    1.2, 1.1, 0.9, 0.8, 0.7, 0.6,  // 0-5h
+                    1.5, 2.0, 2.5, 2.8, 2.6, 2.4,  // 6-11h
+                    3.1, 3.2, 3.5, 3.9, 3.8, 3.6,  // 12-17h (pico)
+                    3.98, 3.5, 3.2, 2.8, 2.4, 1.8  // 18-23h
+                ],
+                avgLast30Days: 2.89,
+                avgToday: 2.62,
+                maxToday: 3.98,
+                peakHour: 18,
+                solarGeneration: 3.2,
+                solarPotential: 5.0
+            },
+            maria: {
+                name: "Maria Santos",
+                type: "residential",
+                hasSolar: false,
+                solarCapacity: 0,
+                hourlyConsumption: [
+                    1.3, 1.2, 1.0, 0.9, 0.8, 0.7,  // 0-5h
+                    1.6, 2.1, 2.6, 2.9, 2.7, 2.5,  // 6-11h
+                    3.2, 3.3, 3.6, 3.84, 3.5, 3.7, // 12-17h (pico)
+                    3.2, 2.9, 2.5, 2.2, 1.9, 1.5   // 18-23h
+                ],
+                avgLast30Days: 2.93,
+                avgToday: 2.65,
+                maxToday: 3.84,
+                peakHour: 17,
+                solarGeneration: 0,
+                solarPotential: 0
+            }
+        };
+
+        let currentChart = null;
+
+        function openDetails(consumerId) {
+            const consumer = consumersData[consumerId];
+            const modal = document.getElementById('detailsModal');
+
+            // Update header
+            document.getElementById('modalTitle').textContent = `${consumer.name} — Detalhes`;
+
+            // Stats
+            const statsHTML = `
+                <div class="detail-item">
+                    <span class="detail-item-label">Consumo Médio (30 dias)</span>
+                    <span class="detail-item-value">${consumer.avgLast30Days} kWh</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">Consumo Hoje</span>
+                    <span class="detail-item-value">${consumer.avgToday} kWh</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">Pico Detectado (${consumer.peakHour}h)</span>
+                    <span class="detail-item-value" style="color: #ff6b6b;">${consumer.maxToday} kWh</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">Aumento no Pico</span>
+                    <span class="detail-item-value">${((consumer.maxToday / consumer.avgLast30Days - 1) * 100).toFixed(0)}%</span>
+                </div>
+            `;
+
+            // Comparison
+            const increase = ((consumer.avgToday / consumer.avgLast30Days - 1) * 100);
+            const comparisonHTML = `
+                <div class="detail-item">
+                    <span class="detail-item-label">Diferença Hoje vs. Média</span>
+                    <span class="detail-item-value" style="color: ${increase > 0 ? '#ff6b6b' : '#27ae60'};">
+                        ${increase > 0 ? '+' : ''}${increase.toFixed(1)}%
+                    </span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">Economia Potencial</span>
+                    <span class="detail-item-value">R$ ${(consumer.maxToday * 0.8 * 0.65).toFixed(2)}</span>
+                </div>
+                ${consumer.hasSolar ? `
+                <div class="detail-item">
+                    <span class="detail-item-label">Geração Solar Hoje</span>
+                    <span class="detail-item-value" style="color: #ffd93d;">${consumer.solarGeneration} kWh</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">Potencial Solar</span>
+                    <span class="detail-item-value">${consumer.solarPotential} kWh</span>
+                </div>
+                ` : ''}
+            `;
+
+            // Recommendations
+            const recommendationsHTML = consumer.hasSolar ? `
+                <div class="detail-item">
+                    <span class="detail-item-label">✓ Ativar compensação de GD</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">✓ Aumentar uso às 12-15h (melhor geração)</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">✓ Investir em bateria (economia 40%)</span>
+                </div>
+            ` : `
+                <div class="detail-item">
+                    <span class="detail-item-label">✓ Desligue ar-condicionado nos picos</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">✓ Considere painéis solares (economia 30%)</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-item-label">✓ Use água quente em horários off-peak</span>
+                </div>
+            `;
+
+            document.getElementById('statsDetails').innerHTML = statsHTML;
+            document.getElementById('comparisonDetails').innerHTML = comparisonHTML;
+            document.getElementById('recommendationsDetails').innerHTML = recommendationsHTML;
+
+            // Draw chart
+            drawChart(consumer);
+
+            modal.classList.add('show');
+        }
+
+        function closeDetails() {
+            document.getElementById('detailsModal').classList.remove('show');
+        }
+
+        function dismissAlert(consumerId) {
+            alert(`Alerta de ${consumersData[consumerId].name} descartado.`);
+        }
+
+        function takeAction() {
+            alert('Ação realizada com sucesso! Você será notificado sobre os resultados.');
+            closeDetails();
+        }
+
+        function drawChart(consumer) {
+            const ctx = document.getElementById('consumptionChart');
+
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const hours = Array.from({length: 24}, (_, i) => `${i}h`);
+            const avgLine = Array(24).fill(consumer.avgLast30Days);
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: hours,
+                    datasets: [
+                        {
+                            label: 'Consumo Hoje',
+                            data: consumer.hourlyConsumption,
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: '#667eea',
+                            pointRadius: 4,
+                            pointHoverRadius: 6
+                        },
+                        {
+                            label: 'Média 30 dias',
+                            data: avgLine,
+                            borderColor: '#999',
+                            borderDash: [5, 5],
+                            fill: false,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 11 },
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return value.toFixed(1) + ' kWh';
+                                }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Close modal on background click
+        document.getElementById('detailsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetails();
+            }
+        });
+    </script>
+</body>
+</html>

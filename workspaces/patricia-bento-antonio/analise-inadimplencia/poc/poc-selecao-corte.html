@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E2 Comercial · Assistente IA de Seleção de Corte (PoC)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#eef1f6; --card:#fff; --card2:#f5f7fa; --ink:#1f2a37; --muted:#667085;
+    --line:#e4e8ef; --accent:#1e88e5; --accent-d:#1669bb;
+    --ai:#5b4bd6; --ai-bg:#f3f1fe; --pos:#2e7d32;
+    --incluir:#e53935; --revisar:#fb8c00; --excluir:#2e7d32;
+    --chip-risk-bg:#fdecec; --chip-risk:#c62828;
+    --chip-prot-bg:#eef4fe; --chip-prot:#2b62c4;
+    --grad:linear-gradient(90deg,#5026a6,#2b4fc4,#1f86d4,#2bb8e8);
+    --mono:'Roboto Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:'Roboto',system-ui,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+  header{background:var(--grad);color:#fff;padding:16px 26px}
+  header h1{margin:0;font-size:19px;font-weight:600;letter-spacing:.2px}
+  header .sub{opacity:.92;font-size:12.5px;margin-top:3px}
+  .badge-poc{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.5);
+    border-radius:20px;padding:2px 11px;font-size:11px;margin-left:10px;vertical-align:middle}
+  .wrap{max-width:1240px;margin:0 auto;padding:18px 26px 60px}
+  .note{background:#fff8e6;border:1px solid #f3e2af;color:#7a5b00;border-radius:8px;
+    padding:9px 13px;font-size:12.5px;margin:14px 0}
+  .rai{background:var(--ai-bg);border:1px solid #ddd6f5;border-left:3px solid var(--ai);color:#46407e;
+    border-radius:0 8px 8px 0;padding:9px 13px;font-size:12.5px;margin:0 0 16px}
+  .rai b{color:var(--ai)}
+  /* funil de cobrança */
+  .funnel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:6px 0 16px;box-shadow:0 1px 2px rgba(16,24,40,.04)}
+  .funnel .ttl{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:14px}
+  .funnel .ttl .ai-badge{background:var(--ai-bg);color:var(--ai);border-radius:12px;padding:2px 9px;font-size:10.5px;font-weight:600;margin-left:6px}
+  .funnel .ttl .ilu{font-weight:400;color:var(--muted);margin-left:6px}
+  .fstage{display:grid;grid-template-columns:250px 1fr 128px;align-items:center;gap:14px;padding:5px 0}
+  .fstage .fname{font-size:12.5px;color:var(--ink);display:flex;align-items:center;gap:9px;line-height:1.3}
+  .fname .fnum{flex:none;width:20px;height:20px;border-radius:50%;background:var(--card2);border:1px solid var(--line);color:var(--muted);font-family:var(--mono);font-size:11px;display:flex;align-items:center;justify-content:center}
+  .ftrack{height:26px;background:var(--card2);border:1px solid var(--line);border-radius:6px;overflow:hidden;display:flex}
+  .fbar{height:100%;display:flex;align-items:center;min-width:52px;border-radius:5px}
+  .fbar .c{padding:0 9px;color:#fff;font-family:var(--mono);font-size:11.5px;font-weight:600;white-space:nowrap}
+  .fval{text-align:right;font-family:var(--mono);font-size:12.5px;color:var(--ink)}
+  .fval .sub{display:block;font-size:10px;color:var(--muted)}
+  .fstage.ia{cursor:pointer}
+  .fstage.ia .ftrack{outline:2px dashed var(--ai);outline-offset:2px}
+  .fstage.ia .fname .tag-ia{color:var(--ai);font-weight:600}
+  .seg-cut{background:var(--incluir);height:100%;display:flex;align-items:center;overflow:hidden}
+  .seg-keep{background:var(--excluir);height:100%;display:flex;align-items:center;overflow:hidden}
+  .seg-cut .c,.seg-keep .c{padding:0 8px;color:#fff;font-family:var(--mono);font-size:10.5px;font-weight:600;white-space:nowrap}
+  .fstage.aviso .fname{color:var(--pos)}
+  .fstage.aviso .fname .arr{flex:none;width:20px;text-align:center;color:var(--pos);font-weight:700}
+  .fstage.aviso .fname .ch{display:block;font-size:10px;color:var(--muted);margin-top:1px}
+  .fbar.rec{background:var(--pos)}
+  .fval.rec, .fval.rec .sub{color:var(--pos)}
+  .fresult{margin-top:13px;border-top:1px solid var(--line);padding-top:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .fresult .big{background:#e8f3ea;border:1px solid #bfe0cb;border-radius:9px;padding:9px 14px}
+  .fresult .big .lab{font-size:10.5px;color:var(--pos);text-transform:uppercase;letter-spacing:.4px}
+  .fresult .big .v{font-family:var(--mono);font-size:17px;font-weight:600;color:var(--pos);margin-top:2px}
+  .fresult .small{font-size:12px;color:var(--muted);line-height:1.5}
+  .funnel .foot{margin-top:13px;font-size:12px;color:var(--muted);line-height:1.5;border-top:1px solid var(--line);padding-top:11px}
+  .funnel .foot b{color:var(--ai)} .funnel .foot a{color:var(--accent-d);font-weight:600;text-decoration:none}
+  /* contexto / narrativa */
+  .context{background:#f3f7fb;border:1px solid #d8e3ef;border-radius:10px;padding:13px 16px;margin:0 0 16px}
+  .context h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.4px;color:#33526f}
+  .context ul{margin:0;padding-left:18px}
+  .context li{margin:5px 0;font-size:12.8px;line-height:1.5}
+  .context li b{color:var(--ink)}
+  .chip.meter{background:#eef0f4;color:#5b6472}
+  .chip.digi{background:#e3f6fb;color:#0e7c93}
+  /* KPI strip */
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:6px 0 18px}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px 15px}
+  .kpi .lab{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .kpi .val{font-size:24px;font-weight:600;margin-top:5px;font-family:var(--mono)}
+  .kpi .val.small{font-size:18px}
+  .kpi.ai{border-color:#d9d2f4;background:linear-gradient(180deg,#faf9ff,#fff)}
+  /* toolbar */
+  .toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+  .filters{display:flex;gap:6px}
+  .fbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:6px 13px;cursor:pointer;font-size:12.5px;color:var(--muted)}
+  .fbtn.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .toolbar input{border:1px solid var(--line);border-radius:8px;padding:7px 11px;font-size:13px;min-width:190px}
+  .spacer{flex:1}
+  .btn-primary{background:var(--ai);color:#fff;border:none;border-radius:8px;padding:9px 18px;font-size:13.5px;font-weight:600;cursor:pointer}
+  .btn-primary:hover{filter:brightness(1.07)}
+  .bulk{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .bulk select{border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12.5px;font-family:inherit}
+  /* table */
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  thead th{background:#fafbfd;text-align:left;font-size:11.5px;color:var(--muted);text-transform:uppercase;
+    letter-spacing:.3px;padding:11px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  tbody tr:hover{background:#fcfcff}
+  .uc{font-weight:600}
+  .muni{color:var(--muted);font-size:12px}
+  .num{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+  .debito{font-weight:600;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+  .chips{display:flex;flex-wrap:wrap;gap:4px;max-width:230px}
+  .chip{font-size:10.5px;border-radius:5px;padding:2px 7px;white-space:nowrap}
+  .chip.risk{background:var(--chip-risk-bg);color:var(--chip-risk)}
+  .chip.prot{background:var(--chip-prot-bg);color:var(--chip-prot)}
+  /* prob bar */
+  .prob{display:flex;align-items:center;gap:7px}
+  .prob>span{font-family:var(--mono);font-size:12px}
+  .prob .track{width:54px;height:7px;border-radius:4px;background:#eceef4;overflow:hidden}
+  .prob .fill{height:100%}
+  /* priority */
+  .prio{font-weight:700;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+  /* rec badge */
+  .rec{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:6px;padding:4px 9px}
+  .rec.cortar{background:#fdecec;color:var(--incluir)}
+  .rec.sms{background:#e7f1fb;color:var(--accent-d)}
+  .rec.acordo{background:var(--ai-bg);color:var(--ai)}
+  .rec.revisar{background:#fff3e0;color:#e07b00}
+  .rec.proteger{background:#e8f3ea;color:var(--pos)}
+  .rec .dot{width:7px;height:7px;border-radius:50%}
+  .rec.cortar .dot{background:var(--incluir)} .rec.sms .dot{background:var(--accent)} .rec.acordo .dot{background:var(--ai)} .rec.revisar .dot{background:var(--revisar)} .rec.proteger .dot{background:var(--pos)}
+  /* operator select */
+  select.dec{border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:12.5px;background:#fff;cursor:pointer}
+  .tag-ovr{font-size:10px;color:#b06a00;background:#fff3e0;border-radius:5px;padding:1px 6px;margin-left:6px}
+  .why{border:none;background:none;color:var(--ai);cursor:pointer;font-size:12px;font-weight:600;padding:2px 4px}
+  .why:hover{text-decoration:underline}
+  /* reasoning row */
+  .reason td{background:#faf9ff;border-bottom:1px solid var(--line);padding:0}
+  .reason .inner{padding:14px 16px 16px;display:none}
+  .reason.open .inner{display:block}
+  .trace{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  .step{background:#fff;border:1px solid #e3def7;border-radius:9px;padding:11px 13px}
+  .step .h{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ai);font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-bottom:7px}
+  .step .h .n{width:18px;height:18px;border-radius:50%;background:var(--ai);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+  .step ul{margin:0;padding-left:16px} .step li{margin:3px 0;font-size:12.5px}
+  .step p{margin:0;font-size:12.5px;line-height:1.5}
+  .aivoice{color:var(--ai);font-style:italic}
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(20,16,40,.45);display:none;align-items:center;justify-content:center;z-index:20}
+  .ov.open{display:flex}
+  .modal{background:#fff;border-radius:14px;max-width:520px;width:92%;padding:22px 24px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal h2{margin:0 0 4px;font-size:18px}
+  .modal .msub{color:var(--muted);font-size:12.5px;margin-bottom:16px}
+  .sumrow{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .sumrow b{font-variant-numeric:tabular-nums}
+  .modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+  .btn-ghost{background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;font-size:13px}
+  footer{color:var(--muted);font-size:11.5px;text-align:center;padding:22px;border-top:1px solid var(--line);margin-top:24px}
+</style>
+</head>
+<body>
+<header>
+  <h1>E2 Comercial · Ordem de Corte — Assistente de IA <span class="badge-poc">PoC · ilustrativo</span></h1>
+  <div class="sub">Lote 2026-06 · triagem assistida por IA com aprovação humana — campos <code>Marcado</code> e <code>Prioridade</code> do <code>ReavisoOrdemDeCorteDTO</code></div>
+</header>
+
+<div class="wrap">
+  <div class="note">⚠️ <b>Protótipo com dados fictícios.</b> O score de probabilidade de pagamento é <b>simulado</b> — virá do modelo pós-reaviso quando o rótulo for corrigido (ver <code>../README.md</code>). Nenhum corte é executado.</div>
+  <div class="rai"><b>IA recomenda, humano decide.</b> Serviço essencial, restrição de corte, baixa renda e micro-geração são marcados como <b>Não cortar / Revisar</b> automaticamente. Toda decisão final é do operador e fica registrada (auditoria). Limiares a validar com Regulatório/Jurídico (Res. ANEEL 479/2012 e 1000/2021).</div>
+
+  <div class="context">
+    <h3>Por que gerir o corte com IA?</h3>
+    <ul>
+      <li>🚚 A maioria das cooperativas usa <b>medidor convencional</b> — cada corte exige <b>deslocamento de equipe</b> (R$ 80–200/visita). Cortar dívida pequena não se paga.</li>
+      <li>⏳ <b>Janela de 90 dias:</b> passado o prazo, a cooperativa <b>não pode mais cortar</b> aquela dívida (Res. ANEEL) — priorizar antes de perder o direito.</li>
+      <li>💸 Cada dia sem pagar é <b>dinheiro fora do caixa</b> — atraso prolongado é custo financeiro.</li>
+      <li>📡 Com o avanço dos <b>medidores digitais</b> (programa ANEEL), o corte fica <b>remoto e barato</b> — e o ganho de uma boa priorização <b>escala</b>.</li>
+      <li>🤖 Por isso: um agente que <b>monitora prazo, tipo de medidor e valor</b> e conduz o corte na hora certa, no caso certo.</li>
+    </ul>
+  </div>
+
+  <div class="funnel">
+    <div class="ttl">Funil de cobrança · ciclo atual<span class="ai-badge">IA atua na seleção do corte</span><span class="ilu">· números ilustrativos</span></div>
+    <div id="funnel-stages"></div>
+    <div id="fresult" class="fresult"></div>
+    <div class="foot">A IA aciona o aviso certo no canal certo antes de cortar, e prioriza o corte só de quem não respondeu. <a href="#tabela" id="f-link">ver a triagem detalhada ▸</a></div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="lab">Ordens analisadas</div><div class="val" id="k-total">—</div></div>
+    <div class="kpi ai"><div class="lab">Marcados p/ cortar</div><div class="val" id="k-incluir">—</div></div>
+    <div class="kpi"><div class="lab">Recuperação esperada</div><div class="val small" id="k-recup">—</div></div>
+    <div class="kpi ai"><div class="lab">Cortes indevidos evitados</div><div class="val" id="k-evitados">—</div></div>
+    <div class="kpi"><div class="lab">ROI estimado do lote</div><div class="val" id="k-roi">—</div></div>
+    <div class="kpi ai"><div class="lab">Deslocamentos evitados</div><div class="val" id="k-desloc">—</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div class="filters" id="filters">
+      <button class="fbtn active" data-f="todos">Todos</button>
+      <button class="fbtn" data-f="cortar">Cortar</button>
+      <button class="fbtn" data-f="sms">SMS/PIX</button>
+      <button class="fbtn" data-f="acordo">Acordo</button>
+      <button class="fbtn" data-f="revisar">Revisar</button>
+      <button class="fbtn" data-f="proteger">Não cortar</button>
+      <button class="fbtn" data-f="janela">⏳ Janela ≤7d</button>
+    </div>
+    <input id="search" placeholder="Buscar UC, classe, município…">
+    <div class="spacer"></div>
+    <label class="bulk">Aplicar aos filtrados:
+      <select id="bulk-acao">
+        <option value="cortar">Cortar</option>
+        <option value="sms">SMS / PIX antes</option>
+        <option value="acordo">Oferecer acordo</option>
+        <option value="revisar">Revisar</option>
+        <option value="proteger">Não cortar</option>
+      </select>
+      <button class="btn-ghost" id="btn-bulk">aplicar</button>
+    </label>
+    <button class="btn-primary" id="btn-confirm">Confirmar lote ▸</button>
+  </div>
+
+  <table id="tabela">
+    <thead>
+      <tr>
+        <th>UC / Município</th><th>Classe</th><th class="num">Débito</th><th class="num">Fat.</th>
+        <th class="num">Atraso</th><th>Sinais</th><th>Prob. pagto</th><th class="num" id="th-prio" style="cursor:pointer" title="Ordenar por prioridade">Prioridade IA ⇅</th>
+        <th>Recomendação IA</th><th>Decisão do operador</th><th></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
+  <footer>
+    E2 ZeroPerdas / E2 Comercial — Assistente de Seleção de Corte · PoC do AI Accelerator (Volaris).
+    Dados fictícios, sem backend. Agentes 3 (assistente de seleção) + 4 (motor de scoring).
+  </footer>
+</div>
+
+<!-- modal -->
+<div class="ov" id="ov">
+  <div class="modal">
+    <h2>Confirmar geração do lote</h2>
+    <div class="msub">Revisão antes de gerar as ordens (mock — nada é enviado ao COD/MDM).</div>
+    <div id="sum"></div>
+    <div class="actions">
+      <button class="btn-ghost" id="btn-cancel">Voltar</button>
+      <button class="btn-primary" id="btn-generate">Gerar lote (mock)</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- dados fictícios (cada linha demonstra uma decisão diferente do agente) ----
+const DATA = [
+  {id:"UC-70188",cls:"Industrial",muni:"Nova Veneza ***",deb:8430.00,fat:2,dias:27,medidor:"Convencional",diasVenc:62,prob:0.28,prio:990,rec:"cortar",
+   flags:[["Débito alto","risk"],["Convencional","meter"]],
+   motivo:"Maior recuperação do lote; débito alto justifica o deslocamento (medidor convencional); sem restrição."},
+  {id:"UC-81277",cls:"Residencial",muni:"Forquilhinha ***",deb:1180.00,fat:5,dias:31,medidor:"Convencional",diasVenc:70,prob:0.12,prio:940,rec:"cortar",
+   flags:[["Reincidente","risk"],["Bloqueio religação","risk"],["Débito alto","risk"],["Convencional","meter"]],
+   motivo:"5 faturas em aberto, reincidente crônico (prob. 12%); alto valor justifica a visita mesmo em medidor convencional."},
+  {id:"UC-33621",cls:"Residencial",muni:"Içara ***",deb:690.00,fat:3,dias:29,medidor:"Digital (MDM)",diasVenc:58,prob:0.16,prio:880,rec:"cortar",
+   flags:[["Reincidente","risk"],["Bloqueio religação","risk"],["Digital · MDM","digi"]],
+   motivo:"Reincidente com bloqueio de religação; medidor digital — corte remoto de baixo custo."},
+  {id:"UC-48211",cls:"Residencial",muni:"Criciúma ***",deb:842.50,fat:3,dias:22,medidor:"Convencional",diasVenc:84,prob:0.18,prio:870,rec:"cortar",
+   flags:[["Reincidente","risk"],["Débito alto","risk"],["Janela 90d: 6d","risk"],["Convencional","meter"]],
+   motivo:"Débito alto e reincidente; janela de corte fechando (6 dias) — priorizar antes de perder o direito de suspender."},
+  {id:"UC-44819",cls:"Comercial",muni:"Nova Veneza ***",deb:905.30,fat:3,dias:26,medidor:"Convencional",diasVenc:96,prob:0.22,prio:200,rec:"acordo",
+   flags:[["Reincidente","risk"],["Janela >90d · vedado","risk"],["Convencional","meter"]],
+   motivo:"Prazo de suspensão expirado (>90 dias) — não pode cortar; oferecer acordo de parcelamento e seguir cobrança."},
+  {id:"UC-12200",cls:"Residencial",muni:"Içara ***",deb:364.00,fat:2,dias:20,medidor:"Digital (MDM)",diasVenc:50,prob:0.34,prio:520,rec:"cortar",
+   flags:[["Reincidente","risk"],["Digital · MDM","digi"]],
+   motivo:"Reincidente; medidor digital — corte remoto barato, compensa mesmo com débito moderado."},
+  {id:"UC-29144",cls:"Residencial",muni:"Criciúma ***",deb:489.90,fat:2,dias:21,medidor:"Convencional",diasVenc:55,prob:0.42,prio:410,rec:"revisar",
+   flags:[["Micro-geração","prot"],["Convencional","meter"]],
+   motivo:"UC com geração distribuída; cautela regulatória antes do corte."},
+  {id:"UC-90455",cls:"Rural",muni:"Forquilhinha ***",deb:410.20,fat:2,dias:23,medidor:"Convencional",diasVenc:60,prob:0.49,prio:300,rec:"sms",
+   flags:[["Rural / safra","prot"],["Convencional","meter"]],
+   motivo:"Rural com sazonalidade de renda; prob. intermediária — tentar SMS/PIX antes do corte (avaliar safra)."},
+  {id:"UC-39002",cls:"Residencial",muni:"Criciúma ***",deb:156.70,fat:1,dias:17,medidor:"Digital (MDM)",diasVenc:45,prob:0.72,prio:80,rec:"sms",
+   flags:[["1ª suspensão 12m","prot"],["Digital · MDM","digi"]],
+   motivo:"Primeira suspensão, alta prob. (72%) e medidor digital — SMS/PIX com link resolve; corte só se não responder."},
+  {id:"UC-77820",cls:"Residencial",muni:"Nova Veneza ***",deb:312.00,fat:2,dias:19,medidor:"Convencional",diasVenc:40,prob:0.61,prio:120,rec:"proteger",
+   flags:[["Fatura posterior paga","prot"],["Convencional","meter"]],
+   motivo:"Fatura posterior já paga; provável pagamento irregular, não inadimplência estrutural."},
+  {id:"UC-10934",cls:"Comercial",muni:"Forquilhinha ***",deb:28.40,fat:1,dias:16,medidor:"Convencional",diasVenc:35,prob:0.55,prio:60,rec:"sms",
+   flags:[["Fatura valor baixo","prot"],["Convencional","meter"]],
+   motivo:"Débito R$28 com medidor convencional — não vale o deslocamento; tentar SMS/PIX antes."},
+  {id:"UC-58713",cls:"Residencial",muni:"Criciúma ***",deb:77.50,fat:1,dias:15,medidor:"Digital (MDM)",diasVenc:30,prob:0.80,prio:40,rec:"sms",
+   flags:[["Fatura valor baixo","prot"],["1ª suspensão 12m","prot"],["Digital · MDM","digi"]],
+   motivo:"Débito baixo e alta prob. de pagamento — SMS/PIX/lembrete antes de qualquer corte."},
+  {id:"UC-66050",cls:"Residencial",muni:"Içara ***",deb:233.10,fat:2,dias:24,medidor:"Convencional",diasVenc:48,prob:0.38,prio:0,rec:"proteger",
+   flags:[["Baixa renda","prot"],["Restrição de corte","prot"],["Convencional","meter"]],
+   motivo:"Restrição de corte ativa (baixa renda + equipamento médico); bloqueio obrigatório."},
+  {id:"UC-55301",cls:"Poder Público",muni:"Içara ***",deb:5120.00,fat:4,dias:28,medidor:"Convencional",diasVenc:65,prob:0.30,prio:0,rec:"proteger",
+   flags:[["Serviço essencial","prot"],["Convencional","meter"]],
+   motivo:"Serviço essencial (unidade de saúde); vedado ao corte (Res. ANEEL)."},
+];
+
+const RECUP_RATE = 0.50;      // taxa de recuperação esperada se cortar (ilustrativa)
+const CUSTO_CORTE = 120;      // custo médio de execução por corte (R$)
+const PROTECT = new Set(["excluir"]); // recomendação protetora p/ "indevidos evitados"
+
+const fmtBRL = v => "R$ "+v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtInt = v => v.toLocaleString("pt-BR");
+const fmtMi  = v => "R$ "+(v>=1e6 ? (v/1e6).toFixed(1).replace(".",",")+" mi" : Math.round(v/1e3)+" mil");
+
+// estado: decisão atual do operador por linha (inicia = recomendação da IA)
+DATA.forEach(d => d.dec = d.rec);
+
+let filtro="todos", busca="";
+
+function probColor(p){ return p<0.30 ? "#e53935" : p<0.55 ? "#fb8c00" : "#2e7d32"; }
+function prioColor(v){ return v>=700 ? "#e53935" : v>=350 ? "#fb8c00" : "#7d8aa6"; }
+function isProtectiveFlag(d){ return d.flags.some(f=>f[1]==="prot"); }
+
+const ACAO_LABEL={cortar:"Cortar",sms:"SMS / PIX antes",acordo:"Oferecer acordo",revisar:"Revisar",proteger:"Não cortar"};
+let sortDesc=true;
+function opcoes(sel){ return Object.entries(ACAO_LABEL).map(([k,v])=>`<option value="${k}" ${sel===k?"selected":""}>${v}</option>`).join(""); }
+function passaFiltro(d){
+  if(filtro==="janela") return d.diasVenc>=83 && d.diasVenc<90;   // janela de corte fechando (≤7d)
+  if(filtro!=="todos" && d.dec!==filtro) return false;
+  return true;
+}
+function render(){
+  const tb = document.getElementById("tbody"); tb.innerHTML="";
+  const ordem=DATA.map((_,i)=>i).sort((a,b)=> sortDesc ? DATA[b].prio-DATA[a].prio : DATA[a].prio-DATA[b].prio);
+  ordem.forEach(i=>{
+    const d=DATA[i];
+    if(!passaFiltro(d)) return;
+    const hay=(d.id+" "+d.cls+" "+d.muni).toLowerCase();
+    if(busca && !hay.includes(busca)) return;
+
+    const tr=document.createElement("tr");
+    const chips=d.flags.map(f=>`<span class="chip ${f[1]}">${f[0]}</span>`).join("");
+    const ovr = d.dec!==d.rec ? `<span class="tag-ovr">ajustado</span>` : "";
+    tr.innerHTML=`
+      <td><div class="uc">${d.id}</div><div class="muni">${d.muni}</div></td>
+      <td>${d.cls}</td>
+      <td class="debito num">${fmtBRL(d.deb)}</td>
+      <td class="num">${d.fat}</td>
+      <td class="num">${d.dias}d</td>
+      <td><div class="chips">${chips||'<span class="muni">—</span>'}</div></td>
+      <td><div class="prob"><div class="track"><div class="fill" style="width:${Math.round(d.prob*100)}%;background:${probColor(d.prob)}"></div></div><span>${Math.round(d.prob*100)}%</span></div></td>
+      <td class="num"><span class="prio" style="color:${prioColor(d.prio)}">${d.prio}</span></td>
+      <td><span class="rec ${d.rec}"><span class="dot"></span>${ACAO_LABEL[d.rec]}</span></td>
+      <td>
+        <select class="dec" data-i="${i}">${opcoes(d.dec)}</select>${ovr}
+      </td>
+      <td><button class="why" data-i="${i}">por quê?</button></td>`;
+    tb.appendChild(tr);
+
+    const rr=document.createElement("tr"); rr.className="reason"; rr.dataset.r=i;
+    rr.innerHTML=`<td colspan="11"><div class="inner">
+      <div class="trace">
+        <div class="step"><div class="h"><span class="n">1</span>Sinais detectados</div>
+          <ul>
+            <li>Débito: <b>${fmtBRL(d.deb)}</b> · ${d.fat} fatura(s) · ${d.dias} dias de atraso</li>
+            <li>Prob. de pagamento (modelo): <b>${Math.round(d.prob*100)}%</b></li>
+            <li>Medidor: <b>${d.medidor}</b> · ${d.diasVenc} dias desde o vencimento (janela de corte: 90d)</li>
+            <li>Flags: ${d.flags.length?d.flags.map(f=>f[0]).join(", "):"nenhuma"}</li>
+          </ul></div>
+        <div class="step"><div class="h"><span class="n">2</span>Raciocínio do agente</div>
+          <p class="aivoice">${d.motivo}</p></div>
+        <div class="step"><div class="h"><span class="n">3</span>Próxima melhor ação</div>
+          <p><span class="rec ${d.rec}"><span class="dot"></span>${ACAO_LABEL[d.rec]}</span> · Prioridade <b>${d.prio}</b>/1000</p>
+          <p class="muni" style="margin-top:7px">O operador confirma ou ajusta na coluna "Decisão". A escolha final fica registrada.</p></div>
+      </div></div></td>`;
+    tb.appendChild(rr);
+  });
+  bind(); updateKPIs();
+}
+
+function bind(){
+  document.querySelectorAll("select.dec").forEach(s=>{
+    s.onchange=e=>{ DATA[+e.target.dataset.i].dec=e.target.value; render(); };
+  });
+  document.querySelectorAll("button.why").forEach(b=>{
+    b.onclick=e=>{ const i=e.target.dataset.i; const rr=document.querySelector(`.reason[data-r="${i}"]`); if(rr) rr.classList.toggle("open"); };
+  });
+}
+
+function updateKPIs(){
+  const inc=DATA.filter(d=>d.dec==="cortar");
+  const valorLote=inc.reduce((s,d)=>s+d.deb,0);
+  const recup=valorLote*RECUP_RATE;
+  const custo=inc.length*CUSTO_CORTE;
+  const roi= custo>0 ? recup/custo : 0;
+  const evitados=DATA.filter(d=>d.dec==="proteger" && isProtectiveFlag(d)).length;
+  const desloc=DATA.filter(d=>d.dec!=="cortar" && d.medidor==="Convencional").length;
+  document.getElementById("k-total").textContent=fmtInt(DATA.length);
+  document.getElementById("k-incluir").textContent=fmtInt(inc.length);
+  document.getElementById("k-recup").textContent=fmtBRL(recup);
+  document.getElementById("k-evitados").textContent=fmtInt(evitados);
+  document.getElementById("k-roi").textContent=(custo>0?roi.toFixed(1)+"×":"—");
+  document.getElementById("k-desloc").textContent=fmtInt(desloc);
+}
+
+// filtros / busca
+document.getElementById("filters").onclick=e=>{
+  if(!e.target.dataset.f) return;
+  filtro=e.target.dataset.f;
+  document.querySelectorAll(".fbtn").forEach(b=>b.classList.toggle("active",b===e.target));
+  render();
+};
+document.getElementById("search").oninput=e=>{ busca=e.target.value.toLowerCase().trim(); render(); };
+
+// marcar em lote (aplica aos filtrados) + ordenar por prioridade
+document.getElementById("btn-bulk").onclick=()=>{
+  const acao=document.getElementById("bulk-acao").value;
+  DATA.forEach(d=>{
+    if(!passaFiltro(d)) return;
+    const hay=(d.id+" "+d.cls+" "+d.muni).toLowerCase();
+    if(busca && !hay.includes(busca)) return;
+    d.dec=acao;
+  });
+  render();
+};
+document.getElementById("th-prio").onclick=()=>{ sortDesc=!sortDesc; render(); };
+
+// confirmar lote
+const ov=document.getElementById("ov");
+document.getElementById("btn-confirm").onclick=()=>{
+  const cnt=k=>DATA.filter(d=>d.dec===k).length;
+  const cortar=DATA.filter(d=>d.dec==="cortar");
+  const overrides=DATA.filter(d=>d.dec!==d.rec).length;
+  const valorLote=cortar.reduce((s,d)=>s+d.deb,0);
+  document.getElementById("sum").innerHTML=`
+    <div class="sumrow"><span>✂️ Cortar</span><b>${cnt("cortar")}</b></div>
+    <div class="sumrow"><span>📲 SMS / PIX antes</span><b>${cnt("sms")}</b></div>
+    <div class="sumrow"><span>🤝 Oferecer acordo</span><b>${cnt("acordo")}</b></div>
+    <div class="sumrow"><span>🔎 Revisar</span><b>${cnt("revisar")}</b></div>
+    <div class="sumrow"><span>🛡️ Não cortar (protegido)</span><b>${cnt("proteger")}</b></div>
+    <div class="sumrow"><span>Valor no lote de corte</span><b>${fmtBRL(valorLote)}</b></div>
+    <div class="sumrow"><span>Recuperação esperada (30d)</span><b>${fmtBRL(valorLote*RECUP_RATE)}</b></div>
+    <div class="sumrow"><span>Ajustes sobre a IA (auditoria)</span><b>${overrides}</b></div>`;
+  ov.classList.add("open");
+};
+document.getElementById("btn-cancel").onclick=()=>ov.classList.remove("open");
+document.getElementById("btn-generate").onclick=()=>{
+  ov.classList.remove("open");
+  const inc=DATA.filter(d=>d.dec==="cortar").length;
+  alert(`Mock: lote de ${inc} ordem(ns) de corte gerado.\nEm produção, gravaria Marcado/Prioridade no ReavisoCortes; SMS/PIX e acordos seguiriam pelos canais de cobrança, com aprovação humana.`);
+};
+ov.onclick=e=>{ if(e.target===ov) ov.classList.remove("open"); };
+
+// ---- funil de cobrança (números ilustrativos, faixa real do .xlsx) ----
+const FUNNEL=[
+  {type:"stock", lab:"Faturas vencidas no ciclo", n:24800, v:7200000, c:"#7d8aa6"},
+  {type:"aviso", preCorte:true, lab:"Aviso preventivo", canal:"e-mail · WhatsApp · SMS", rec:13400, recV:3100000},
+  {type:"stock", lab:"Reaviso de débito emitido", n:11400, v:4100000, c:"#2b4fc4"},
+  {type:"aviso", preCorte:true, lab:"Aviso pré-corte (novo contato)", canal:"e-mail · WhatsApp · SMS", rec:7500, recV:2200000},
+  {type:"stock", lab:"Em aberto · elegível a corte", n:3900, v:1900000, c:"#1f86d4"},
+  {type:"ia", lab:"Seleção da ordem de corte", n:3900, v:1900000, cut:2300, keep:1600},
+  {type:"stock", lab:"Cortes executados", n:2300, v:1400000, c:"#fb8c00"},
+  {type:"aviso", lab:"Recuperado pós-corte / religação", canal:"pagamento após o corte", rec:1400, recV:900000},
+];
+function scrollToTable(){ const t=document.getElementById("tabela"); if(t) t.scrollIntoView({behavior:"smooth",block:"start"}); }
+function renderFunnel(){
+  const maxV=Math.max(...FUNNEL.map(s=>s.v||s.recV||0));
+  const host=document.getElementById("funnel-stages");
+  let n=0;
+  host.innerHTML=FUNNEL.map(s=>{
+    if(s.type==="aviso"){
+      const w=(s.recV/maxV*100).toFixed(1);
+      return `<div class="fstage aviso">
+        <div class="fname"><span class="arr">↩</span><span>${s.lab}<span class="ch">${s.canal}</span></span></div>
+        <div class="ftrack"><div class="fbar rec" style="width:${w}%"><span class="c">recuperado ${fmtInt(s.rec)}</span></div></div>
+        <div class="fval rec">${fmtMi(s.recV)}<span class="sub">${fmtInt(s.rec)} clientes</span></div>
+      </div>`;
+    }
+    if(s.type==="ia"){
+      const w=(s.v/maxV*100).toFixed(1), cw=(s.cut/(s.cut+s.keep)*100).toFixed(1);
+      return `<div class="fstage ia" id="f-ia">
+        <div class="fname"><span class="fnum">${++n}</span><span>${s.lab} · <span class="tag-ia">IA atua aqui</span></span></div>
+        <div class="ftrack"><div class="fbar" style="width:${w}%;min-width:0;border-radius:0;padding:0">
+          <div class="seg-cut"  style="width:${cw}%"><span class="c">Cortar ${fmtInt(s.cut)}</span></div>
+          <div class="seg-keep" style="width:${(100-cw).toFixed(1)}%"><span class="c">Segurar ${fmtInt(s.keep)}</span></div>
+        </div></div>
+        <div class="fval">${fmtMi(s.v)}<span class="sub">${fmtInt(s.n)} UCs</span></div>
+      </div>`;
+    }
+    const w=(s.v/maxV*100).toFixed(1);
+    return `<div class="fstage">
+      <div class="fname"><span class="fnum">${++n}</span><span>${s.lab}</span></div>
+      <div class="ftrack"><div class="fbar" style="width:${w}%;background:${s.c}"><span class="c">${fmtInt(s.n)}</span></div></div>
+      <div class="fval">${fmtMi(s.v)}<span class="sub">${fmtInt(s.n)} UCs</span></div>
+    </div>`;
+  }).join("");
+  // resultado: recuperado pelos avisos antes do corte (preventivo + pré-corte)
+  const pre=FUNNEL.filter(s=>s.type==="aviso" && s.preCorte);
+  const all=FUNNEL.filter(s=>s.type==="aviso");
+  const recC=pre.reduce((a,s)=>a+s.rec,0), recV=pre.reduce((a,s)=>a+s.recV,0);
+  const totC=all.reduce((a,s)=>a+s.rec,0), totV=all.reduce((a,s)=>a+s.recV,0);
+  document.getElementById("fresult").innerHTML=`
+    <div class="big"><div class="lab">Recuperado sem precisar cortar (pelos avisos)</div>
+      <div class="v">${fmtMi(recV)} · ${fmtInt(recC)} clientes</div></div>
+    <div class="small">Avisos multicanal (e-mail · WhatsApp · SMS) resolveram <b>${fmtInt(recC)}</b> casos antes do corte.<br>
+      Recuperação total do ciclo (avisos + pós-corte): <b>${fmtMi(totV)} · ${fmtInt(totC)} clientes</b>.</div>`;
+  const ia=document.getElementById("f-ia"); if(ia) ia.onclick=scrollToTable;
+}
+document.getElementById("f-link").onclick=e=>{ e.preventDefault(); scrollToTable(); };
+
+renderFunnel();
+render();
+</script>
+</body>
+</html>

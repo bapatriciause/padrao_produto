@@ -1,0 +1,5 @@
+cliente,linhas,ucs_distintas,reavisos_por_uc,target_pos,target_pos_pct,ano_mes_sentinela_qtd,ano_mes_sentinela_pct,ano_mes_min,ano_mes_max,data_emissao_fora_faixa_qtd
+ALIANCA,227926,26775,8.51,37,0.0162,0,0.0,2023-12,2025-12,0
+CERSUL,79236,10541,7.52,15,0.0189,46,0.058054419708213435,2024-01,2025-12,0
+CETRIL,227152,22603,10.05,85,0.0374,0,0.0,2023-12,2025-12,0
+CHESP,275484,27016,10.2,397,0.1441,34,0.012341914593951009,2023-12,2025-12,0
